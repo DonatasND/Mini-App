@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Razgon Mini App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- HEADER: рейтинг + профиль -->
+    <header class="header">
+      <div class="rating-pill">
+        <div class="rating-label">Рейтинг</div>
+        <div class="rating-values">
+          <span id="rating-current">—</span>
+          <span class="rating-separator">•</span>
+          <span id="rating-last">прошл. сезон: —</span>
+        </div>
+      </div>
+
+      <button class="profile-pill" id="profile-pill">
+        <div class="profile-text">
+          <span class="profile-name" id="profile-name">Гость</span>
+          <span class="profile-label">Профиль</span>
+        </div>
+        <div class="profile-avatar" id="profile-avatar">?</div>
+      </button>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main">
+      <section class="glass-card" id="main-card"></section>
+    </main>
+
+    <!-- BOTTOM NAV: фиксированные три кнопки -->
+    <nav class="bottom-nav">
+      <button class="nav-pill" data-section="challenges">
+        <span class="nav-pill-icon">🔥</span>
+        <span class="nav-pill-label">Челленджи</span>
+      </button>
+
+      <button class="nav-pill nav-pill-active" data-section="home">
+        <span class="nav-pill-icon">🏠</span>
+        <span class="nav-pill-label">Главная</span>
+      </button>
+
+      <button class="nav-pill" data-section="fund">
+        <span class="nav-pill-icon">🏆</span>
+        <span class="nav-pill-label">Призовой фонд</span>
+        <span class="nav-pill-sub" id="fund-label">Фонд: 0★</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
