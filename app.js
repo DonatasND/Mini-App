@@ -77,11 +77,13 @@ let inputEnabled = false;
 //   finished: false,
 //   lastInput: "",
 //   totalMatchChars: number,
-//   botSpeed: number,          // chars/ms
+//   botSpeed: number,
 //   botProgressChars: number,
 //   pauseTotalMs: number,
 //   pauseStartedAt: number|null,
-//   inInterRoundPause: boolean
+//   inInterRoundPause: boolean,
+//   correctCharsTotal: number,
+//   typedCharsTotal: number
 // }
 
 /* --------- навигация снизу --------- */
@@ -143,7 +145,7 @@ function initTelegram() {
   }
 
   tg.ready();
-  tg.expand();
+  tg.expand(); // максимально прячит шапку телеги, дальше уже Telegram решает
 
   user = tg.initDataUnsafe?.user || null;
 
@@ -412,7 +414,6 @@ function renderHomeContent() {
             <div class="mode-title">Тренировка</div>
             <div class="mode-sub">Игра против бота и приватные матчи.</div>
           </div>
-          <div class="mode-tag">Solo</div>
         </div>
 
         <div class="mode-card" data-mode="pvp">
@@ -464,7 +465,6 @@ function renderTrainingMenu() {
             <div class="row-title">Игра против бота</div>
             <div class="row-sub">3 раунда по 7 строк. Без рейтингового риска.</div>
           </div>
-          <div class="row-tag">Solo</div>
         </div>
 
         <div class="row-item" id="btn-training-private">
@@ -950,7 +950,7 @@ function startTrainingGame(difficulty) {
   const totalChars = rounds.flat().join("").length;
 
   const BOT_TARGET_TIME = {
-    easy: 110,   // сек
+    easy: 110,
     medium: 80,
     hard: 55
   };
@@ -973,7 +973,9 @@ function startTrainingGame(difficulty) {
     botProgressChars: 0,
     pauseTotalMs: 0,
     pauseStartedAt: null,
-    inInterRoundPause: false
+    inInterRoundPause: false,
+    correctCharsTotal: 0,
+    typedCharsTotal: 0
   };
 
   renderGameScreen();
@@ -1288,10 +1290,10 @@ function attachGameHandlers() {
       const prev = activeGameState.lastInput || "";
       let next = prev;
 
-      // без BACKSPACE — только добавление
+      // только добавление, без удаления
       next = prev + key;
 
-      handleGameInput(next);
+      handleGameInput(next, key);
     });
   }
 }
@@ -1309,26 +1311,27 @@ function triggerErrorFlash() {
 
 /* логика ввода (через нашу клавиатуру) */
 
-function handleGameInput(value) {
+function handleGameInput(value, lastKey) {
   if (!activeGameState || activeGameState.finished) return;
 
   const prev = activeGameState.lastInput || "";
   const diffLen = value.length - prev.length;
 
-  // защита от скачка на >1 символ (на всякий случай)
+  // каждое нажатие учитываем как попытку
+  activeGameState.typedCharsTotal += 1;
+
+  // защита от скачка на >1 символ
   if (diffLen > 1) {
     updateInputDisplay(prev);
     return;
   }
 
-  // мы не поддерживаем удаление и правку середины —
-  // только добавление символов на хвост
+  // мы не поддерживаем удаление/редактирование — только добавление в хвост
   if (diffLen <= 0) {
     updateInputDisplay(prev);
     return;
   }
 
-  // добавление одного символа
   const idx = value.length - 1;
   const target = getCurrentLine();
 
@@ -1336,8 +1339,8 @@ function handleGameInput(value) {
     const typedChar = value[idx];
     const expectedChar = target[idx];
 
-    // регистр + Ё
     if (!isSameChar(typedChar, expectedChar)) {
+      // неверный символ
       activeGameState.errorsInRound += 1;
       activeGameState.totalErrors += 1;
       triggerErrorFlash();
@@ -1358,6 +1361,9 @@ function handleGameInput(value) {
       updateGameStatsUI();
       return;
     }
+
+    // верный символ — копим прогресс
+    activeGameState.correctCharsTotal += 1;
   }
 
   activeGameState.lastInput = value;
@@ -1382,13 +1388,11 @@ function advanceLine() {
   activeGameState.lastInput = "";
 
   if (isLastLineInRound && isLastRound) {
-    // матч завершён
     finishGame(true, "Все раунды пройдены");
     return;
   }
 
   if (isLastLineInRound && !isLastRound) {
-    // окончание раунда, пауза перед следующим
     activeGameState.roundIndex += 1;
     activeGameState.lineIndex = 0;
     activeGameState.errorsInRound = 0;
@@ -1402,7 +1406,6 @@ function advanceLine() {
     return;
   }
 
-  // обычный переход к следующей строке в текущем раунде
   activeGameState.lineIndex += 1;
   updateRoundUI();
   updateGameLinesUI(0);
@@ -1412,22 +1415,11 @@ function advanceLine() {
   updateGameProgressUI(ratios.player, ratios.bot);
 }
 
-/* учёт всех напечатанных символов игрока по матчу */
+/* учёт прогресса игрока по матчу */
 
 function getPlayerCorrectChars() {
   if (!activeGameState) return 0;
-  const { rounds, roundIndex, lineIndex, lastInput } = activeGameState;
-
-  const finishedRoundsChars = rounds
-    .slice(0, roundIndex)
-    .flat()
-    .join("").length;
-
-  const finishedLinesCurrentRoundChars = rounds[roundIndex]
-    .slice(0, lineIndex)
-    .join("").length;
-
-  return finishedRoundsChars + finishedLinesCurrentRoundChars + lastInput.length;
+  return activeGameState.correctCharsTotal;
 }
 
 function getProgressRatios() {
@@ -1460,11 +1452,11 @@ function updateGameStatsUI() {
   const elapsedMin = Math.max(elapsedMs / 60000, 0.01);
 
   const correctChars = getPlayerCorrectChars();
-  const totalAttempts = correctChars + activeGameState.totalErrors;
+  const totalTyped = activeGameState.typedCharsTotal;
   const speed = Math.round(correctChars / elapsedMin);
   const accuracy =
-    totalAttempts > 0
-      ? Math.round((correctChars / totalAttempts) * 100)
+    totalTyped > 0
+      ? Math.round((correctChars / totalTyped) * 100)
       : 100;
 
   const speedEl = document.getElementById("game-speed");
@@ -1479,10 +1471,8 @@ function updateGameStatsUI() {
     elapsedMs * activeGameState.botSpeed
   );
 
-  const total = activeGameState.totalMatchChars || 1;
-  const playerRatio = correctChars / total;
-  const botRatio = activeGameState.botProgressChars / total;
-  updateGameProgressUI(playerRatio, botRatio);
+  const ratios = getProgressRatios();
+  updateGameProgressUI(ratios.player, ratios.bot);
 
   // если бот добежал до конца раньше игрока — победа бота
   if (!activeGameState.finished) {
@@ -1534,7 +1524,6 @@ function startInterRoundPause() {
       cdEl.textContent = "";
       lines.classList.remove("loading");
 
-      // закрываем паузу
       if (activeGameState.pauseStartedAt) {
         activeGameState.pauseTotalMs += Date.now() - activeGameState.pauseStartedAt;
         activeGameState.pauseStartedAt = null;
@@ -1565,6 +1554,19 @@ function finishGame(success, reason) {
 
   inputEnabled = false;
 
+  // анимация скрытия клавиатуры
+  const keyboard = document.getElementById("game-keyboard");
+  if (keyboard) {
+    keyboard.classList.add("keyboard-hide");
+    keyboard.addEventListener(
+      "animationend",
+      () => {
+        keyboard.style.display = "none";
+      },
+      { once: true }
+    );
+  }
+
   const now = Date.now();
   const startedAt = activeGameState.startedAt || now;
 
@@ -1581,11 +1583,11 @@ function finishGame(success, reason) {
   const elapsedSec = (elapsedMs / 1000).toFixed(1);
 
   const correctChars = getPlayerCorrectChars();
-  const totalAttempts = correctChars + activeGameState.totalErrors;
+  const totalTyped = activeGameState.typedCharsTotal;
   const speed = elapsedMs > 0 ? Math.round((correctChars / elapsedMs) * 60000) : 0;
   const accuracy =
-    totalAttempts > 0
-      ? Math.round((correctChars / totalAttempts) * 100)
+    totalTyped > 0
+      ? Math.round((correctChars / totalTyped) * 100)
       : 100;
 
   const summaryEl = document.getElementById("game-summary");
@@ -1605,7 +1607,10 @@ function finishGame(success, reason) {
     actionsEl.style.display = "flex";
   }
 
-  if (tg) {
+  // чтобы точно не выкидывало из мини-аппы при поражении —
+  // ничего не отправляем боту по итогам тренировки
+  /*
+  if (tg && success) {
     try {
       tg.sendData(
         JSON.stringify({
@@ -1620,8 +1625,7 @@ function finishGame(success, reason) {
           ts: Date.now()
         })
       );
-    } catch (e) {
-      // молча
-    }
+    } catch (e) {}
   }
+  */
 }
