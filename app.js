@@ -5,7 +5,8 @@ let currentSection = "home";
 const MATCH_ROUNDS = 3;
 const LINES_PER_ROUND = 7;
 
-const PRESTART_COUNTDOWN_SEC = 5;
+const PRESTART_COUNTDOWN_SEC = 3; // было 5, теперь 3
+
 const INTER_ROUND_COUNTDOWN_SEC = 3;
 const MAX_ERRORS_PER_ROUND = 5;
 
@@ -90,12 +91,12 @@ let inputEnabled = false;
 
 function hideBottomNav() {
   const nav = document.querySelector(".bottom-nav");
-  if (nav) nav.style.display = "none";
+  if (nav) nav.classList.add("nav-buttons-hidden"); // островок остаётся, кнопки скрываем
 }
 
 function showBottomNav() {
   const nav = document.querySelector(".bottom-nav");
-  if (nav) nav.style.display = "flex";
+  if (nav) nav.classList.remove("nav-buttons-hidden");
 }
 
 /* --------- НОРМАЛИЗАЦИЯ СИМВОЛОВ: регистр + Ё --------- */
@@ -145,7 +146,15 @@ function initTelegram() {
   }
 
   tg.ready();
-  tg.expand(); // максимально прячит шапку телеги, дальше уже Telegram решает
+  tg.expand(); // максимально разворачиваем webapp
+
+  // Лучшее, что можем сделать с "шапкой" — попросить телегу убрать лишний хром
+  try {
+    tg.setHeaderColor?.("secondary");
+    tg.setBackgroundColor?.("#05060a");
+  } catch (e) {
+    // молча
+  }
 
   user = tg.initDataUnsafe?.user || null;
 
@@ -986,7 +995,7 @@ function renderGameScreen() {
   const card = document.getElementById("main-card");
   if (!card || !activeGameState) return;
 
-  hideBottomNav();
+  hideBottomNav(); // скрываем кнопки, но оставляем снизу островок
   card.classList.add("game-mode");
 
   card.innerHTML = `
@@ -1326,7 +1335,7 @@ function handleGameInput(value, lastKey) {
     return;
   }
 
-  // мы не поддерживаем удаление/редактирование — только добавление в хвост
+  // не поддерживаем удаление/редактирование — только добавление в хвост
   if (diffLen <= 0) {
     updateInputDisplay(prev);
     return;
@@ -1607,25 +1616,5 @@ function finishGame(success, reason) {
     actionsEl.style.display = "flex";
   }
 
-  // чтобы точно не выкидывало из мини-аппы при поражении —
-  // ничего не отправляем боту по итогам тренировки
-  /*
-  if (tg && success) {
-    try {
-      tg.sendData(
-        JSON.stringify({
-          type: "training_result",
-          success,
-          reason,
-          difficulty: activeGameState.difficulty,
-          speed,
-          accuracy,
-          totalErrors: activeGameState.totalErrors,
-          roundsCompleted: activeGameState.roundIndex + 1,
-          ts: Date.now()
-        })
-      );
-    } catch (e) {}
-  }
-  */
+  // чтобы точно не выкидывало из мини-аппы при поражении — результат тренировки никуда не шлём
 }
