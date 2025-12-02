@@ -6,6 +6,7 @@
 *::before,
 *::after {
   box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
 }
 
 body {
@@ -20,6 +21,13 @@ body {
     radial-gradient(circle at 100% 100%, rgba(129,80,255,0.18), transparent 55%),
     linear-gradient(145deg,#05060a,#080910,#050509);
   color:var(--tg-theme-text-color,#f8fbff);
+}
+
+button {
+  font-family:inherit;
+  -webkit-tap-highlight-color:transparent;
+  outline:none;
+  border:none;
 }
 
 /* запас под фиксированную навигацию */
@@ -385,7 +393,7 @@ body {
   opacity:.85;
 }
 
-/* BOTTOM NAV — фиксированная, ПЛАТФОРМА ПРОЗРАЧНАЯ */
+/* BOTTOM NAV — фиксированная, со стеклом */
 
 .bottom-nav {
   position:fixed;
@@ -396,9 +404,10 @@ body {
   display:flex;
   justify-content:center;
   gap:10px;
-  background:transparent;
-  backdrop-filter:none;
-  -webkit-backdrop-filter:none;
+  background:rgba(5,10,20,0.7);
+  backdrop-filter:blur(18px) saturate(180%);
+  -webkit-backdrop-filter:blur(18px) saturate(180%);
+  border-top:1px solid rgba(255,255,255,0.12);
   z-index:10;
 }
 
@@ -417,6 +426,12 @@ body {
   cursor:pointer;
   color:rgba(234,242,255,0.96);
   transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease,opacity .15s ease;
+  outline:none;
+}
+
+.nav-pill:focus,
+.nav-pill:focus-visible {
+  outline:none;
 }
 
 .nav-pill-icon {
@@ -733,7 +748,7 @@ body {
 
 .game-line {
   min-height:22px;
-  white-space:nowrap;          /* не даём строке ломать высоту */
+  white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
@@ -741,17 +756,17 @@ body {
 .game-line-prev {
   opacity:.45;
   margin-bottom:6px;
-  font-size:18px;           /* ~1.5x */
+  font-size:18px;
 }
 
 .game-line-current {
   margin-bottom:6px;
-  font-size:26px;           /* ~2x */
+  font-size:26px;
 }
 
 .game-line-next {
   opacity:.45;
-  font-size:18px;           /* ~1.5x */
+  font-size:18px;
 }
 
 .game-line-current span.current {
@@ -797,16 +812,17 @@ body {
   white-space:nowrap;
 }
 
-/* экранная клавиатура — ФИКСИРОВАНА ВНИЗУ ЭКРАНА */
+/* экранная клавиатура — ФИКСИРОВАНА ВНИЗУ ЭКРАНА, УВЕЛИЧЕНА */
 
 .game-keyboard {
   position:fixed;
   left:50%;
-  bottom:10px;
-  transform:translateX(-50%);
+  bottom:0;
+  transform:translateX(-50%) scale(1.3);
+  transform-origin:50% 100%;
   width:100%;
   max-width:480px;
-  padding:0 14px 0;
+  padding:4px 14px 10px;
   display:flex;
   flex-direction:column;
   gap:6px;
@@ -838,6 +854,24 @@ body {
 .key-btn:active {
   transform:scale(.96);
   opacity:.85;
+}
+
+/* анимация “всасывания” клавиатуры при завершении */
+
+.game-keyboard.keyboard-hide {
+  animation:keyboard-suck-out .25s ease forwards;
+  pointer-events:none;
+}
+
+@keyframes keyboard-suck-out {
+  0% {
+    transform:translateX(-50%) scale(1.3);
+    opacity:1;
+  }
+  100% {
+    transform:translateX(-50%) translateY(40px) scale(0.6);
+    opacity:0;
+  }
 }
 
 /* summary */
