@@ -5,8 +5,7 @@ let currentSection = "home";
 const MATCH_ROUNDS = 3;
 const LINES_PER_ROUND = 7;
 
-const PRESTART_COUNTDOWN_SEC = 3; // было 5, теперь 3
-
+const PRESTART_COUNTDOWN_SEC = 3;
 const INTER_ROUND_COUNTDOWN_SEC = 3;
 const MAX_ERRORS_PER_ROUND = 5;
 
@@ -56,7 +55,35 @@ const achievementsUnlocked = [
 const achievementsLocked = [
   { title: "Железный гриндер", desc: "Играть 30 дней подряд без пропусков." },
   { title: "Топ месяца", desc: "Войти в топ-3 по призовому фонду." },
-  { title: "PvE мастер", desc: "Выиграть 20 PvE матчей за звёзды." }
+  { title: "PvE мастер", desc: "Выиграть много PvE матчей за звёзды." }
+];
+
+/* Новые данные: последние матчи для профиля */
+const recentMatches = [
+  {
+    mode: "PvP дуэль",
+    result: "win",
+    desc: "Победа по времени, соперник отстал на 3.2 с",
+    ago: "5 мин назад"
+  },
+  {
+    mode: "Тренировка с ботом",
+    result: "lose",
+    desc: "Лимит ошибок в 3 раунде",
+    ago: "32 мин назад"
+  },
+  {
+    mode: "PvE за звёзды",
+    result: "win",
+    desc: "Чистая победа без ошибок",
+    ago: "Вчера"
+  },
+  {
+    mode: "PvP дуэль",
+    result: "lose",
+    desc: "Проигрыш в финальной строке",
+    ago: "2 дня назад"
+  }
 ];
 
 /* --------- состояние локальной игры --------- */
@@ -91,7 +118,7 @@ let inputEnabled = false;
 
 function hideBottomNav() {
   const nav = document.querySelector(".bottom-nav");
-  if (nav) nav.classList.add("nav-buttons-hidden"); // островок остаётся, кнопки скрываем
+  if (nav) nav.classList.add("nav-buttons-hidden"); // визуально островок остаётся, клики отключены
 }
 
 function showBottomNav() {
@@ -146,15 +173,12 @@ function initTelegram() {
   }
 
   tg.ready();
-  tg.expand(); // максимально разворачиваем webapp
+  tg.expand();
 
-  // Лучшее, что можем сделать с "шапкой" — попросить телегу убрать лишний хром
   try {
     tg.setHeaderColor?.("secondary");
     tg.setBackgroundColor?.("#05060a");
-  } catch (e) {
-    // молча
-  }
+  } catch (e) {}
 
   user = tg.initDataUnsafe?.user || null;
 
@@ -228,6 +252,7 @@ function stopActiveGame() {
   }
   activeGameState = null;
   inputEnabled = false;
+  document.body.classList.remove("in-game");
 }
 
 /* ---------- Общий рендер ---------- */
@@ -288,7 +313,27 @@ function renderProfile() {
         </div>
       </div>
 
-      <div class="profile-section-label" style="margin-top:10px;">Статистика матчей</div>
+      <div class="profile-section-label" style="margin-top:12px;">Последние матчи</div>
+      <div class="list-rows">
+        ${recentMatches
+          .slice(0, 4)
+          .map((m) => {
+            const tagText = m.result === "win" ? "Победа" : "Поражение";
+            const tagEmoji = m.result === "win" ? "✅" : "❌";
+            return `
+              <div class="row-item">
+                <div class="row-main">
+                  <div class="row-title">${m.mode}</div>
+                  <div class="row-sub">${m.desc} • ${m.ago}</div>
+                </div>
+                <div class="row-tag">${tagEmoji} ${tagText}</div>
+              </div>
+            `;
+          })
+          .join("")}
+      </div>
+
+      <div class="profile-section-label" style="margin-top:12px;">Статистика матчей</div>
       <div class="stat-grid">
         <div class="stat-card">
           <div class="stat-label">PvP матчи</div>
@@ -888,37 +933,37 @@ function attachFundHandlers() {
   }
 }
 
-/* ---------- ГЕНЕРАЦИЯ ТЕКСТА ---------- */
+/* ---------- ГЕНЕРАЦИЯ ТЕКСТА (без цифр и примеров) ---------- */
 
 function generateLine(difficulty, roundIndex) {
   const baseTextsEasy = [
     "кот спит на окне",
-    "я люблю мемы",
-    "простой текст тут",
+    "я люблю забавные мемы",
+    "простой текст для разгона",
     "съешь ещё этих булок",
-    "тыкаем по клаве",
-    "123 + 12 = 135",
-    "кто быстрее печатает"
+    "легкая разминка перед матчем",
+    "кто быстрее печатает текст",
+    "спокойный старт тренировки"
   ];
 
   const baseTextsMid = [
-    "настройка скорости печати",
+    "настройка скорости печати полезна всем",
     "каждый раунд сложнее прошлого",
-    "проверим точность ввода текста",
-    "45 - 19 = 26 верно",
-    "кто успеет дописать раньше",
-    "быстрые пальцы побеждают",
-    "слегка усложнённая строка"
+    "проверим точность ввода текста внимательнее",
+    "кто успеет дописать строку раньше оппонента",
+    "быстрые пальцы чаще побеждают в дуэлях",
+    "слегка усложнённая строка для разогрева",
+    "тренировка помогает держать форму"
   ];
 
   const baseTextsHard = [
-    "сложный текст с пунктуацией, проверим внимательность",
-    "сумма 123 * 7 - 14 = 847 нужно сверить",
-    "когда скорость и точность совпадают, результат максимален",
-    "игроки соревнуются за призовой фонд и рейтинг",
-    "ошибка возвращает строку к началу, будь аккуратнее",
-    "двойные пробелы и знаки тоже считаются",
-    "финальный раунд решает исход матча"
+    "сложный текст с пунктуацией проверяет внимательность игрока",
+    "когда скорость и точность совпадают результат становится максимальным",
+    "игроки соревнуются за призовой фонд и личный рейтинг",
+    "ошибка возвращает строку к началу будь аккуратнее с вводом",
+    "двойные пробелы и знаки тоже считаются в чистоте текста",
+    "финальный раунд решает исход напряженного матча",
+    "чем меньше ошибок тем выше итоговый результат"
   ];
 
   if (difficulty === "easy") {
@@ -987,6 +1032,7 @@ function startTrainingGame(difficulty) {
     typedCharsTotal: 0
   };
 
+  document.body.classList.add("in-game");
   renderGameScreen();
   startPreCountdown();
 }
@@ -995,7 +1041,7 @@ function renderGameScreen() {
   const card = document.getElementById("main-card");
   if (!card || !activeGameState) return;
 
-  hideBottomNav(); // скрываем кнопки, но оставляем снизу островок
+  hideBottomNav(); // скрываем кнопки, но оставляем снизу островок (без кликов)
   card.classList.add("game-mode");
 
   card.innerHTML = `
@@ -1044,26 +1090,7 @@ function renderGameScreen() {
       <div class="game-countdown" id="game-countdown"></div>
     </div>
 
-    <div class="game-input">
-      <div class="game-input-display" id="game-input-display"></div>
-    </div>
-
     <div class="game-keyboard" id="game-keyboard">
-      <div class="key-row">
-        <button class="key-btn" data-key="1">1</button>
-        <button class="key-btn" data-key="2">2</button>
-        <button class="key-btn" data-key="3">3</button>
-        <button class="key-btn" data-key="4">4</button>
-        <button class="key-btn" data-key="5">5</button>
-        <button class="key-btn" data-key="6">6</button>
-        <button class="key-btn" data-key="7">7</button>
-        <button class="key-btn" data-key="8">8</button>
-        <button class="key-btn" data-key="9">9</button>
-        <button class="key-btn" data-key="0">0</button>
-        <button class="key-btn" data-key="-">-</button>
-        <button class="key-btn" data-key="+">+</button>
-        <button class="key-btn" data-key="=">=</button>
-      </div>
       <div class="key-row">
         <button class="key-btn" data-key="й">й</button>
         <button class="key-btn" data-key="ц">ц</button>
@@ -1118,7 +1145,6 @@ function renderGameScreen() {
   updateGameLinesUI(0);
   updateGameProgressUI(0, 0);
   updateLivesUI();
-  updateInputDisplay("");
 
   attachGameHandlers();
 }
@@ -1193,12 +1219,6 @@ function updateLivesUI() {
   });
 }
 
-function updateInputDisplay(value) {
-  const el = document.getElementById("game-input-display");
-  if (!el) return;
-  el.textContent = value;
-}
-
 /* countdown + стартовый флэш */
 
 function triggerStartFlash() {
@@ -1259,7 +1279,6 @@ function attachGameHandlers() {
   const keyboard = document.getElementById("game-keyboard");
 
   activeGameState.lastInput = "";
-  updateInputDisplay("");
 
   if (exitBtn) {
     exitBtn.onclick = () => {
@@ -1331,13 +1350,11 @@ function handleGameInput(value, lastKey) {
 
   // защита от скачка на >1 символ
   if (diffLen > 1) {
-    updateInputDisplay(prev);
     return;
   }
 
   // не поддерживаем удаление/редактирование — только добавление в хвост
   if (diffLen <= 0) {
-    updateInputDisplay(prev);
     return;
   }
 
@@ -1357,7 +1374,6 @@ function handleGameInput(value, lastKey) {
 
       if (activeGameState.errorsInRound >= MAX_ERRORS_PER_ROUND) {
         activeGameState.lastInput = value;
-        updateInputDisplay(value);
         updateGameStatsUI();
         finishGame(false, "Лимит ошибок в раунде исчерпан");
         return;
@@ -1365,7 +1381,6 @@ function handleGameInput(value, lastKey) {
 
       // сброс строки после ошибки
       activeGameState.lastInput = "";
-      updateInputDisplay("");
       updateGameLinesUI(0);
       updateGameStatsUI();
       return;
@@ -1376,7 +1391,6 @@ function handleGameInput(value, lastKey) {
   }
 
   activeGameState.lastInput = value;
-  updateInputDisplay(value);
   updateGameLinesUI(value.length);
   updateGameStatsUI();
 
@@ -1410,7 +1424,6 @@ function advanceLine() {
 
     const ratios = getProgressRatios();
     updateGameProgressUI(ratios.player, ratios.bot);
-    updateInputDisplay("");
     startInterRoundPause();
     return;
   }
@@ -1418,7 +1431,6 @@ function advanceLine() {
   activeGameState.lineIndex += 1;
   updateRoundUI();
   updateGameLinesUI(0);
-  updateInputDisplay("");
 
   const ratios = getProgressRatios();
   updateGameProgressUI(ratios.player, ratios.bot);
@@ -1616,5 +1628,5 @@ function finishGame(success, reason) {
     actionsEl.style.display = "flex";
   }
 
-  // чтобы точно не выкидывало из мини-аппы при поражении — результат тренировки никуда не шлём
+  // результат тренировки никуда не отправляем — чтобы точно не выкидывало из мини-аппы
 }
