@@ -747,7 +747,7 @@ body.in-game .app {
   border-color:rgba(255,120,120,1);
 }
 
-/* "колесо" строк */
+/* "колесо" строк — фиксированное поле */
 
 .game-lines {
   margin-top:10px;
@@ -755,8 +755,13 @@ body.in-game .app {
   padding:10px;
   background:rgba(7,10,20,0.95);
   border:1px solid rgba(255,255,255,0.18);
-  font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family:"SF Mono",ui-monospace,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   position:relative;
+  height:110px;                /* фиксированная высота */
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  overflow:hidden;             /* защита от вылезания */
 }
 
 .game-lines.loading .game-line {
@@ -769,7 +774,7 @@ body.in-game .app {
 }
 
 .game-line {
-  min-height:22px;
+  min-height:0;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -777,29 +782,58 @@ body.in-game .app {
 
 .game-line-prev {
   opacity:.45;
-  margin-bottom:6px;
-  font-size:18px;
+  margin-bottom:4px;
+  font-size:16px;
 }
 
 .game-line-current {
-  margin-bottom:6px;
-  font-size:26px;
+  margin:2px 0;
 }
 
 .game-line-next {
   opacity:.45;
-  font-size:18px;
+  margin-top:4px;
+  font-size:16px;
 }
 
-.game-line-current span.current {
-  text-decoration:underline;
-  text-decoration-thickness:2px;
-  text-underline-offset:2px;
+/* бегущая строка */
+
+.game-scroll-wrapper {
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.game-scroll-marker {
+  width:2px;
+  align-self:stretch;
+  border-radius:2px;
+  background:rgba(126,202,255,0.9);
+  box-shadow:0 0 6px rgba(126,202,255,0.8);
+}
+
+.game-scroll-viewport {
+  flex:1;
+  overflow:hidden;
+}
+
+.game-scroll-inner {
+  display:inline-flex;
+  font-size:24px;
+  line-height:1.1;
+  transform:translateX(0);
+  transition:transform .08s linear;
+}
+
+.game-scroll-char {
+  display:inline-block;
+  width:1ch;
+  color:rgba(220,230,245,0.35); /* серые ненапечатанные буквы */
+}
+
+.game-scroll-char.active-char {
   color:#7ecaff;
-}
-
-.game-line-current span.done {
-  opacity:.6;
+  text-shadow:0 0 6px rgba(126,202,255,0.9);
 }
 
 /* countdown внутри окна текста */
@@ -839,6 +873,10 @@ body.in-game .app {
   justify-content:space-between;
 }
 
+.key-row-space {
+  justify-content:center;
+}
+
 .key-btn {
   flex:1 1 0;
   min-width:0;
@@ -852,8 +890,8 @@ body.in-game .app {
 }
 
 .key-btn-wide {
-  flex:1;
-  max-width:320px; /* чтобы пробел не вылезал за край */
+  flex:0 0 70%;
+  max-width:70%;
 }
 
 .key-btn:active {
