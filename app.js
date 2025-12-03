@@ -58,7 +58,6 @@ const achievementsLocked = [
   { title: "PvE мастер", desc: "Выиграть много PvE матчей за звёзды." }
 ];
 
-/* Новые данные: последние матчи для профиля */
 const recentMatches = [
   {
     mode: "PvP дуэль",
@@ -93,32 +92,13 @@ let preStartTimer = null;
 let activeGameState = null;
 let inputEnabled = false;
 // game state:
-// {
-//   mode: "training",
-//   difficulty: "easy"|"medium"|"hard",
-//   rounds: string[][],
-//   roundIndex: 0..2,
-//   lineIndex: 0..6,
-//   errorsInRound: 0,
-//   totalErrors: 0,
-//   startedAt: number|null,
-//   finished: false,
-//   lastInput: "",
-//   totalMatchChars: number,
-//   botSpeed: number,
-//   botProgressChars: number,
-//   pauseTotalMs: number,
-//   pauseStartedAt: number|null,
-//   inInterRoundPause: boolean,
-//   correctCharsTotal: number,
-//   typedCharsTotal: number
-// }
+// { ... }
 
 /* --------- навигация снизу --------- */
 
 function hideBottomNav() {
   const nav = document.querySelector(".bottom-nav");
-  if (nav) nav.classList.add("nav-buttons-hidden"); // визуально островок остаётся, клики отключены
+  if (nav) nav.classList.add("nav-buttons-hidden");
 }
 
 function showBottomNav() {
@@ -148,6 +128,20 @@ function normalizeText(str) {
 
 function isSameText(a, b) {
   return normalizeText(a) === normalizeText(b);
+}
+
+/* --------- HAPTIC / ВИБРАЦИЯ --------- */
+
+function triggerKeyHaptics() {
+  try {
+    if (tg && tg.HapticFeedback && typeof tg.HapticFeedback.impactOccurred === "function") {
+      tg.HapticFeedback.impactOccurred("light");
+    } else if (window.navigator && typeof navigator.vibrate === "function") {
+      navigator.vibrate(10);
+    }
+  } catch (e) {
+    // тихо игнорируем, если что-то пошло не так
+  }
 }
 
 /* --------- init --------- */
@@ -208,14 +202,12 @@ function updateRatingHeader() {
 }
 
 function initUI() {
-  // профиль
   document.getElementById("profile-pill").addEventListener("click", () => {
     stopActiveGame();
     currentSection = "profile";
     renderProfile();
   });
 
-  // нижняя навигация
   document.querySelectorAll(".nav-pill").forEach((btn) => {
     btn.addEventListener("click", () => {
       const section = btn.dataset.section;
@@ -1041,7 +1033,7 @@ function renderGameScreen() {
   const card = document.getElementById("main-card");
   if (!card || !activeGameState) return;
 
-  hideBottomNav(); // скрываем кнопки, но оставляем снизу островок (без кликов)
+  hideBottomNav();
   card.classList.add("game-mode");
 
   card.innerHTML = `
@@ -1091,46 +1083,48 @@ function renderGameScreen() {
     </div>
 
     <div class="game-keyboard" id="game-keyboard">
-      <div class="key-row">
-        <button class="key-btn" data-key="й">й</button>
-        <button class="key-btn" data-key="ц">ц</button>
-        <button class="key-btn" data-key="у">у</button>
-        <button class="key-btn" data-key="к">к</button>
-        <button class="key-btn" data-key="е">е</button>
-        <button class="key-btn" data-key="н">н</button>
-        <button class="key-btn" data-key="г">г</button>
-        <button class="key-btn" data-key="ш">ш</button>
-        <button class="key-btn" data-key="щ">щ</button>
-        <button class="key-btn" data-key="з">з</button>
-        <button class="key-btn" data-key="х">х</button>
-        <button class="key-btn" data-key="ъ">ъ</button>
-      </div>
-      <div class="key-row">
-        <button class="key-btn" data-key="ф">ф</button>
-        <button class="key-btn" data-key="ы">ы</button>
-        <button class="key-btn" data-key="в">в</button>
-        <button class="key-btn" data-key="а">а</button>
-        <button class="key-btn" data-key="п">п</button>
-        <button class="key-btn" data-key="р">р</button>
-        <button class="key-btn" data-key="о">о</button>
-        <button class="key-btn" data-key="л">л</button>
-        <button class="key-btn" data-key="д">д</button>
-        <button class="key-btn" data-key="ж">ж</button>
-        <button class="key-btn" data-key="э">э</button>
-      </div>
-      <div class="key-row">
-        <button class="key-btn" data-key="я">я</button>
-        <button class="key-btn" data-key="ч">ч</button>
-        <button class="key-btn" data-key="с">с</button>
-        <button class="key-btn" data-key="м">м</button>
-        <button class="key-btn" data-key="и">и</button>
-        <button class="key-btn" data-key="т">т</button>
-        <button class="key-btn" data-key="ь">ь</button>
-        <button class="key-btn" data-key="б">б</button>
-        <button class="key-btn" data-key="ю">ю</button>
-      </div>
-      <div class="key-row key-row-space">
-        <button class="key-btn key-btn-wide" data-key=" ">Пробел</button>
+      <div class="keyboard-plate">
+        <div class="key-row">
+          <button class="key-btn" data-key="й">й</button>
+          <button class="key-btn" data-key="ц">ц</button>
+          <button class="key-btn" data-key="у">у</button>
+          <button class="key-btn" data-key="к">к</button>
+          <button class="key-btn" data-key="е">е</button>
+          <button class="key-btn" data-key="н">н</button>
+          <button class="key-btn" data-key="г">г</button>
+          <button class="key-btn" data-key="ш">ш</button>
+          <button class="key-btn" data-key="щ">щ</button>
+          <button class="key-btn" data-key="з">з</button>
+          <button class="key-btn" data-key="х">х</button>
+          <button class="key-btn" data-key="ъ">ъ</button>
+        </div>
+        <div class="key-row">
+          <button class="key-btn" data-key="ф">ф</button>
+          <button class="key-btn" data-key="ы">ы</button>
+          <button class="key-btn" data-key="в">в</button>
+          <button class="key-btn" data-key="а">а</button>
+          <button class="key-btn" data-key="п">п</button>
+          <button class="key-btn" data-key="р">р</button>
+          <button class="key-btn" data-key="о">о</button>
+          <button class="key-btn" data-key="л">л</button>
+          <button class="key-btn" data-key="д">д</button>
+          <button class="key-btn" data-key="ж">ж</button>
+          <button class="key-btn" data-key="э">э</button>
+        </div>
+        <div class="key-row">
+          <button class="key-btn" data-key="я">я</button>
+          <button class="key-btn" data-key="ч">ч</button>
+          <button class="key-btn" data-key="с">с</button>
+          <button class="key-btn" data-key="м">м</button>
+          <button class="key-btn" data-key="и">и</button>
+          <button class="key-btn" data-key="т">т</button>
+          <button class="key-btn" data-key="ь">ь</button>
+          <button class="key-btn" data-key="б">б</button>
+          <button class="key-btn" data-key="ю">ю</button>
+        </div>
+        <div class="key-row key-row-space">
+          <button class="key-btn key-btn-wide" data-key=" ">Пробел</button>
+        </div>
       </div>
     </div>
 
@@ -1328,11 +1322,10 @@ function attachGameHandlers() {
       const key = btn.dataset.key;
       if (!key) return;
 
-      const prev = activeGameState.lastInput || "";
-      let next = prev;
+      triggerKeyHaptics(); // вибрация / haptic на каждое нажатие
 
-      // только добавление, без удаления
-      next = prev + key;
+      const prev = activeGameState.lastInput || "";
+      const next = prev + key; // только добавление
 
       handleGameInput(next, key);
     });
@@ -1358,15 +1351,12 @@ function handleGameInput(value, lastKey) {
   const prev = activeGameState.lastInput || "";
   const diffLen = value.length - prev.length;
 
-  // каждое нажатие учитываем как попытку
   activeGameState.typedCharsTotal += 1;
 
-  // защита от скачка на >1 символ
   if (diffLen > 1) {
     return;
   }
 
-  // не поддерживаем удаление/редактирование — только добавление в хвост
   if (diffLen <= 0) {
     return;
   }
@@ -1379,7 +1369,6 @@ function handleGameInput(value, lastKey) {
     const expectedChar = target[idx];
 
     if (!isSameChar(typedChar, expectedChar)) {
-      // неверный символ
       activeGameState.errorsInRound += 1;
       activeGameState.totalErrors += 1;
       triggerErrorFlash();
@@ -1392,14 +1381,12 @@ function handleGameInput(value, lastKey) {
         return;
       }
 
-      // сброс строки после ошибки
       activeGameState.lastInput = "";
       updateGameLinesUI(0);
       updateGameStatsUI();
       return;
     }
 
-    // верный символ — копим прогресс
     activeGameState.correctCharsTotal += 1;
   }
 
@@ -1407,7 +1394,6 @@ function handleGameInput(value, lastKey) {
   updateGameLinesUI(value.length);
   updateGameStatsUI();
 
-  // строка завершена (учёт регистра и Ё/Е)
   if (isSameText(value, target)) {
     advanceLine();
   }
@@ -1499,7 +1485,6 @@ function updateGameStatsUI() {
   if (speedEl) speedEl.textContent = `${speed} симв/мин`;
   if (accEl) accEl.textContent = `${accuracy}%`;
 
-  // прогресс бота по эффективному времени без пауз
   activeGameState.botProgressChars = Math.min(
     activeGameState.totalMatchChars,
     elapsedMs * activeGameState.botSpeed
@@ -1508,7 +1493,6 @@ function updateGameStatsUI() {
   const ratios = getProgressRatios();
   updateGameProgressUI(ratios.player, ratios.bot);
 
-  // если бот добежал до конца раньше игрока — победа бота
   if (!activeGameState.finished) {
     const playerOnLastRound =
       activeGameState.roundIndex === MATCH_ROUNDS - 1 &&
@@ -1588,7 +1572,6 @@ function finishGame(success, reason) {
 
   inputEnabled = false;
 
-  // анимация скрытия клавиатуры
   const keyboard = document.getElementById("game-keyboard");
   if (keyboard) {
     keyboard.classList.add("keyboard-hide");
@@ -1640,6 +1623,4 @@ function finishGame(success, reason) {
   if (actionsEl) {
     actionsEl.style.display = "flex";
   }
-
-  // результат тренировки никуда не отправляем — чтобы точно не выкидывало из мини-аппы
 }
