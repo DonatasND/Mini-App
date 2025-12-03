@@ -1129,7 +1129,7 @@ function renderGameScreen() {
         <button class="key-btn" data-key="б">б</button>
         <button class="key-btn" data-key="ю">ю</button>
       </div>
-      <div class="key-row">
+      <div class="key-row key-row-space">
         <button class="key-btn key-btn-wide" data-key=" ">Пробел</button>
       </div>
     </div>
@@ -1167,6 +1167,8 @@ function getNextLine() {
   return "";
 }
 
+/* обновлённый вывод строк с "бегущей строкой" */
+
 function updateGameLinesUI(typedLength) {
   if (!activeGameState) return;
   const prevEl = document.getElementById("game-line-prev");
@@ -1181,14 +1183,25 @@ function updateGameLinesUI(typedLength) {
   prevEl.textContent = prev || "";
   nextEl.textContent = next || "";
 
-  const spans = cur.split("").map((ch, idx) => {
-    const safe = ch === " " ? "&nbsp;" : ch;
-    let cls = "";
-    if (idx < typedLength) cls = "done";
-    else if (idx === typedLength) cls = "current";
-    return `<span class="${cls}">${safe}</span>`;
-  });
-  curEl.innerHTML = spans.join("");
+  const charsHtml = cur
+    .split("")
+    .map((ch, idx) => {
+      const safe = ch === " " ? "&nbsp;" : ch;
+      const active = idx === typedLength ? " active-char" : "";
+      return `<span class="game-scroll-char${active}">${safe}</span>`;
+    })
+    .join("");
+
+  curEl.innerHTML = `
+    <div class="game-scroll-wrapper">
+      <div class="game-scroll-marker"></div>
+      <div class="game-scroll-viewport">
+        <div class="game-scroll-inner" style="transform: translateX(calc(-1ch * ${typedLength}));">
+          ${charsHtml}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function updateGameProgressUI(playerRatio, botRatio) {
