@@ -1,64 +1,1014 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8" />
-  <title>Razgon Mini App</title>
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
-  />
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <div class="app">
+:root {
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
 
-    <!-- HEADER: рейтинг + профиль -->
-    <header class="header">
-      <div class="rating-pill">
-        <div class="rating-label">Рейтинг</div>
-        <div class="rating-values">
-          <span id="rating-current">—</span>
-          <span class="rating-separator">•</span>
-          <span id="rating-last">прошл. сезон: —</span>
-        </div>
-      </div>
+*,
+*::before,
+*::after {
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
 
-      <button class="profile-pill" id="profile-pill">
-        <div class="profile-text">
-          <span class="profile-name" id="profile-name">Гость</span>
-          <span class="profile-label">Профиль</span>
-        </div>
-        <div class="profile-avatar" id="profile-avatar">?</div>
-      </button>
-    </header>
+body {
+  margin:0;
+  padding:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:stretch;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(71,186,255,0.16), transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(129,80,255,0.18), transparent 55%),
+    linear-gradient(145deg,#05060a,#080910,#050509);
+  color:var(--tg-theme-text-color,#f8fbff);
+}
 
-    <!-- MAIN -->
-    <main class="main">
-      <section class="glass-card" id="main-card"></section>
-    </main>
+button {
+  font-family:inherit;
+  -webkit-tap-highlight-color:transparent;
+  outline:none;
+  border:none;
+}
 
-    <!-- BOTTOM NAV "островок" -->
-    <nav class="bottom-nav">
-      <button class="nav-pill" data-section="challenges">
-        <span class="nav-pill-icon">🔥</span>
-        <span class="nav-pill-label">Челленджи</span>
-      </button>
+/* базовая высота под навигацию */
+.app {
+  min-height:100vh;
+  max-width:480px;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  padding:14px;
+  padding-bottom:80px;
+  gap:12px;
+}
 
-      <button class="nav-pill nav-pill-active" data-section="home">
-        <span class="nav-pill-icon">🏠</span>
-        <span class="nav-pill-label">Главная</span>
-      </button>
+/* в матче поле тянем ниже, так как навигация скрыта */
+body.in-game .app {
+  padding-bottom:10px;
+}
 
-      <button class="nav-pill" data-section="fund">
-        <span class="nav-pill-icon">🏆</span>
-        <span class="nav-pill-label">Призовой фонд</span>
-        <span class="nav-pill-sub" id="fund-label">Фонд: 0★</span>
-      </button>
-    </nav>
+/* HEADER */
 
-  </div>
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
 
-  <script src="app.js"></script>
-</body>
-</html>
+/* RATING PILL */
+
+.rating-pill {
+  border-radius:999px;
+  padding:6px 10px;
+  background:linear-gradient(
+    135deg,
+    rgba(255,255,255,0.05),
+    rgba(255,255,255,0.01)
+  );
+  border:1px solid rgba(255,255,255,0.16);
+  backdrop-filter:blur(14px) saturate(150%);
+  -webkit-backdrop-filter:blur(14px) saturate(150%);
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  max-width:55%;
+}
+
+.rating-label {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  opacity:.75;
+}
+
+.rating-values {
+  font-size:12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+  align-items:center;
+}
+
+.rating-separator {
+  opacity:.6;
+}
+
+#rating-current {
+  font-weight:600;
+}
+
+#rating-last {
+  opacity:.8;
+}
+
+/* PROFILE PILL */
+
+.profile-pill {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.18);
+  background:linear-gradient(
+    135deg,
+    rgba(255,255,255,0.06),
+    rgba(255,255,255,0.02)
+  );
+  backdrop-filter:blur(16px) saturate(160%);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);
+  cursor:pointer;
+  transition:transform .15s ease,opacity .15s ease;
+  color:inherit;
+}
+
+.profile-pill:active {
+  transform:scale(.96);
+  opacity:.9;
+}
+
+.profile-text {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:2px;
+}
+
+.profile-name {
+  font-size:13px;
+  font-weight:600;
+}
+
+.profile-label {
+  font-size:11px;
+  opacity:.7;
+}
+
+.profile-avatar {
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:15px;
+  color:#05121d;
+  background:
+    radial-gradient(circle at 30% 20%,#ffffff,rgba(255,255,255,0)),
+    linear-gradient(135deg,#7ecaff,#508fff);
+  box-shadow:
+    0 0 12px rgba(126,202,255,0.8),
+    0 8px 16px rgba(0,0,0,0.7);
+}
+
+/* MAIN */
+
+.main {
+  flex:1;
+  display:flex;
+  align-items:stretch;
+  justify-content:center;
+}
+
+.glass-card {
+  flex:1;
+  border-radius:22px;
+  padding:16px 14px 18px;
+  background:linear-gradient(
+    145deg,
+    rgba(255,255,255,0.1),
+    rgba(255,255,255,0.02)
+  );
+  border:1px solid rgba(255,255,255,0.18);
+  box-shadow:
+    0 20px 55px rgba(0,0,0,0.8),
+    0 0 0 1px rgba(255,255,255,0.03);
+  backdrop-filter:blur(24px) saturate(170%);
+  -webkit-backdrop-filter:blur(24px) saturate(170%);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  transition:box-shadow .15s ease,border-color .15s ease;
+}
+
+/* для игры оставляем запас внизу под клаву */
+.glass-card.game-mode {
+  padding-bottom:110px;
+}
+
+/* красный флэш при ошибке */
+
+.error-flash {
+  box-shadow:
+    0 0 0 1px rgba(255,80,80,0.6),
+    0 0 24px rgba(255,60,60,0.9),
+    0 0 80px rgba(255,0,0,0.65);
+  border-color:rgba(255,120,120,0.9);
+}
+
+/* BP "островок" на главной */
+
+.bp-island {
+  border-radius:18px;
+  padding:10px 10px 12px;
+  background:rgba(7,10,20,0.9);
+  border:1px solid rgba(255,255,255,0.18);
+}
+
+.bp-block {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.bp-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.bp-title {
+  font-size:14px;
+  font-weight:600;
+}
+
+.bp-level {
+  font-size:13px;
+  padding:3px 8px;
+  border-radius:999px;
+  background:rgba(6,18,35,0.85);
+  border:1px solid rgba(120,192,255,0.6);
+}
+
+.bp-bar {
+  width:100%;
+  height:14px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.14);
+  overflow:hidden;
+  position:relative;
+}
+
+.bp-fill {
+  position:absolute;
+  inset:0;
+  width:0;
+  border-radius:999px;
+  background:linear-gradient(90deg,#43aaff,#77ddff);
+  box-shadow:0 0 18px rgba(90,200,255,0.7);
+  transition:width .4s ease;
+}
+
+.bp-sub {
+  font-size:11px;
+  opacity:.75;
+}
+
+/* Контентные блоки */
+
+.content-block {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:4px;
+}
+
+.section-label {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  opacity:.75;
+}
+
+/* Режимы игры на главной */
+
+.mode-grid-two {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin-top:4px;
+}
+
+.mode-grid-single {
+  margin-top:8px;
+}
+
+.mode-card {
+  border-radius:16px;
+  padding:10px 10px;
+  background:rgba(7,10,20,0.9);
+  border:1px solid rgba(255,255,255,0.14);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  transition:transform .12s ease,opacity .12s ease;
+}
+
+.mode-card:active {
+  transform:scale(.97);
+  opacity:.9;
+}
+
+.mode-icon {
+  font-size:18px;
+}
+
+.mode-main {
+  flex:1;
+}
+
+.mode-title {
+  font-size:14px;
+  font-weight:600;
+}
+
+.mode-sub {
+  font-size:11px;
+  opacity:.85;
+}
+
+.mode-tag {
+  font-size:11px;
+  padding:3px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.08);
+}
+
+/* Списки / строки */
+
+.list-rows {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-top:4px;
+}
+
+.row-item {
+  border-radius:12px;
+  padding:8px 9px;
+  background:rgba(7,10,20,0.9);
+  border:1px solid rgba(255,255,255,0.12);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+}
+
+.row-main {
+  flex:1;
+}
+
+.row-title {
+  font-weight:500;
+}
+
+.row-sub {
+  font-size:11px;
+  opacity:.8;
+}
+
+.row-tag {
+  font-size:11px;
+  padding:3px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.06);
+}
+
+/* Кнопки */
+
+.btn-secondary {
+  margin-top:6px;
+  padding:9px 12px;
+  border-radius:999px;
+  width:100%;
+  border:1px solid rgba(255,255,255,0.18);
+  background:transparent;
+  color:rgba(215,230,255,0.9);
+  font-size:13px;
+  cursor:pointer;
+  transition:opacity .15s ease,transform .15s ease;
+}
+
+.btn-secondary:active {
+  transform:translateY(1px);
+  opacity:.85;
+}
+
+/* BOTTOM NAV "островок" — без фона за кнопками */
+
+.bottom-nav {
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:8px 14px 10px;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  background:transparent;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+  border-top:none;
+  z-index:10;
+}
+
+/* когда кнопки скрыты (во время матча), островок визуально есть, но не перехватывает клики */
+.bottom-nav.nav-buttons-hidden {
+  pointer-events:none;
+}
+
+.bottom-nav.nav-buttons-hidden .nav-pill {
+  opacity:0;
+  pointer-events:none;
+  transform:scale(0.9);
+}
+
+.nav-pill {
+  flex:0 0 32%;
+  max-width:140px;
+  border-radius:24px;
+  padding:7px 4px 6px;
+  border:1px solid rgba(255,255,255,0.3);
+  background:linear-gradient(
+    145deg,
+    rgba(255,255,255,0.33),
+    rgba(255,255,255,0.16)
+  );
+  backdrop-filter:blur(18px) saturate(190%);
+  -webkit-backdrop-filter:blur(18px) saturate(190%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  cursor:pointer;
+  color:rgba(234,242,255,0.96);
+  text-shadow:0 0 4px rgba(0,0,0,0.6);
+  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease,opacity .15s ease;
+  outline:none;
+}
+
+.nav-pill:focus,
+.nav-pill:focus-visible {
+  outline:none;
+}
+
+.nav-pill-icon {
+  font-size:16px;
+}
+
+.nav-pill-label {
+  font-size:11px;
+}
+
+.nav-pill-sub {
+  font-size:10px;
+  opacity:.9;
+}
+
+.nav-pill:active {
+  transform:scale(.95);
+  opacity:.9;
+}
+
+.nav-pill-active {
+  border-color:rgba(130,200,255,0.95);
+  box-shadow:
+    0 0 18px rgba(120,200,255,0.55),
+    0 10px 22px rgba(0,0,0,0.9);
+}
+
+/* Пьедестал призового фонда */
+
+.podium {
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:8px;
+  margin-top:8px;
+}
+
+.podium-slot {
+  flex:0 0 30%;
+  border-radius:12px 12px 4px 4px;
+  background:rgba(7,10,20,0.95);
+  border:1px solid rgba(255,255,255,0.18);
+  padding:6px 4px;
+  text-align:center;
+}
+
+.podium-slot.gold {
+  box-shadow:0 0 18px rgba(255,215,0,0.7);
+}
+
+.podium-place {
+  font-size:11px;
+  opacity:.8;
+}
+
+.podium-name {
+  font-size:12px;
+  font-weight:600;
+}
+
+.podium-score {
+  font-size:11px;
+}
+
+.podium-stars {
+  font-size:13px;
+}
+
+.podium-1 { height:78px; }
+.podium-2 { height:64px; }
+.podium-3 { height:56px; }
+
+/* Профиль / витрина достижений */
+
+.profile-section-label {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  opacity:.75;
+  margin-top:4px;
+}
+
+.profile-ach-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:10px;
+}
+
+.profile-ach-link {
+  font-size:11px;
+  text-decoration:underline;
+  opacity:.9;
+  background:none;
+  border:none;
+  padding:0;
+  color:inherit;
+  cursor:pointer;
+}
+
+.profile-character {
+  margin-top:4px;
+}
+
+.character-frame {
+  border-radius:18px;
+  padding:14px;
+  background:radial-gradient(circle at 0% 0%,rgba(126,202,255,0.25),rgba(7,10,20,0.97));
+  border:1px solid rgba(255,255,255,0.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:140px;
+}
+
+.character-placeholder {
+  font-size:12px;
+  text-align:center;
+  opacity:.9;
+}
+
+.stat-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin-top:6px;
+}
+
+.stat-card {
+  border-radius:14px;
+  padding:8px 8px;
+  background:rgba(7,10,20,0.9);
+  border:1px solid rgba(255,255,255,0.14);
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+
+.stat-label {
+  font-size:11px;
+  opacity:.78;
+}
+
+.stat-value {
+  font-size:14px;
+  font-weight:600;
+}
+
+.stat-sub {
+  font-size:10px;
+  opacity:.7;
+}
+
+.showcase-grid {
+  display:flex;
+  gap:8px;
+  margin-top:6px;
+}
+
+.showcase-card {
+  flex:1;
+  border-radius:14px;
+  padding:8px;
+  background:rgba(7,10,20,0.9);
+  border:1px solid rgba(255,255,255,0.18);
+  font-size:11px;
+}
+
+.showcase-title {
+  font-weight:600;
+  margin-bottom:2px;
+}
+
+.showcase-sub {
+  opacity:.8;
+}
+
+/* ---------- ЭКРАН ИГРЫ ---------- */
+
+.game-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.game-title {
+  font-size:14px;
+  font-weight:600;
+}
+
+.game-back-btn {
+  font-size:11px;
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.2);
+  background:rgba(7,10,20,0.9);
+  color:inherit;
+  cursor:pointer;
+}
+
+.game-back-btn:active {
+  transform:scale(.97);
+  opacity:.9;
+}
+
+.game-stats-row {
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+}
+
+.game-stat {
+  flex:1;
+  border-radius:12px;
+  padding:6px 8px;
+  background:rgba(7,10,20,0.9);
+  border:1px solid rgba(255,255,255,0.14);
+  font-size:11px;
+}
+
+.game-stat-label {
+  opacity:.75;
+}
+
+.game-stat-value {
+  margin-top:2px;
+  font-size:13px;
+  font-weight:600;
+}
+
+/* прогресс матча: игрок + бот */
+
+.game-progress {
+  margin-top:8px;
+}
+
+.game-progress-bar {
+  width:100%;
+  height:6px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.15);
+  overflow:hidden;
+  position:relative;
+}
+
+.game-progress-fill {
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:0%;
+  border-radius:999px;
+}
+
+#game-progress-fill-bot {
+  background:linear-gradient(90deg,#ff9b5c,#ff5c7a);
+  opacity:.6;
+}
+
+#game-progress-fill {
+  background:linear-gradient(90deg,#7ecaff,#50ffce);
+}
+
+/* жизни (ошибки) */
+
+.game-lives {
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  opacity:.85;
+}
+
+.game-lives-dots {
+  display:flex;
+  gap:4px;
+}
+
+.life-dot {
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.6);
+  background:transparent;
+}
+
+.life-dot-lost {
+  background:rgba(255,80,80,0.95);
+  border-color:rgba(255,120,120,1);
+}
+
+/* "колесо" строк — фиксированное поле */
+
+.game-lines {
+  margin-top:10px;
+  border-radius:14px;
+  padding:10px;
+  background:rgba(7,10,20,0.95);
+  border:1px solid rgba(255,255,255,0.18);
+  font-family:"SF Mono",ui-monospace,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  position:relative;
+  height:110px;                /* фиксированная высота */
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  overflow:hidden;             /* защита от вылезания */
+}
+
+.game-lines.loading .game-line {
+  opacity:0;
+}
+
+.game-lines.start-flash {
+  box-shadow:0 0 18px rgba(126,202,255,0.75);
+  border-color:rgba(126,202,255,0.8);
+}
+
+.game-line {
+  min-height:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.game-line-prev {
+  opacity:.45;
+  margin-bottom:4px;
+  font-size:16px;
+}
+
+.game-line-current {
+  margin:2px 0;
+}
+
+.game-line-next {
+  opacity:.45;
+  margin-top:4px;
+  font-size:16px;
+}
+
+/* бегущая строка */
+
+.game-scroll-wrapper {
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.game-scroll-marker {
+  width:2px;
+  align-self:stretch;
+  border-radius:2px;
+  background:rgba(126,202,255,0.9);
+  box-shadow:0 0 6px rgba(126,202,255,0.8);
+}
+
+.game-scroll-viewport {
+  flex:1;
+  overflow:hidden;
+}
+
+.game-scroll-inner {
+  display:inline-flex;
+  font-size:24px;
+  line-height:1.1;
+  transform:translateX(0);
+  transition:transform .08s linear;
+}
+
+.game-scroll-char {
+  display:inline-block;
+  width:1ch;
+  color:rgba(220,230,245,0.35); /* серые ненапечатанные буквы */
+}
+
+.game-scroll-char.active-char {
+  color:#7ecaff;
+  text-shadow:0 0 6px rgba(126,202,255,0.9);
+}
+
+/* countdown внутри окна текста */
+
+.game-countdown {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+  font-size:28px;
+  font-weight:700;
+  text-shadow:0 0 18px rgba(0,0,0,0.9);
+}
+
+/* экранная клавиатура — в самом низу, на месте навигации */
+
+.game-keyboard {
+  position:fixed;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%) scale(1);
+  transform-origin:50% 100%;
+  width:100%;
+  max-width:480px;
+  padding:4px 10px 8px; /* побольше отступы слева/справа, чтобы не прилипать к краям */
+  display:flex;
+  flex-direction:column;
+  z-index:20;
+}
+
+.keyboard-plate {
+  width:100%;
+  border-radius:16px 16px 10px 10px;
+  padding:6px 6px 8px;
+  background:rgba(5,9,18,0.96);
+  border:1px solid rgba(255,255,255,0.18);
+  backdrop-filter:blur(18px) saturate(180%);
+  -webkit-backdrop-filter:blur(18px) saturate(180%);
+  box-shadow:
+    0 -4px 18px rgba(0,0,0,0.8),
+    0 0 18px rgba(0,0,0,0.6);
+}
+
+.key-row {
+  display:flex;
+  gap:4px;
+  justify-content:space-between;
+}
+
+.key-row + .key-row {
+  margin-top:4px;
+}
+
+.key-row-space {
+  justify-content:center;
+}
+
+.key-btn {
+  flex:1 1 0;
+  min-width:0;
+  padding:8px 4px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.2);
+  background:rgba(7,10,20,0.95);
+  font-size:20px;
+  color:inherit;
+  cursor:pointer;
+}
+
+.key-btn-wide {
+  flex:0 0 70%;
+  max-width:70%;
+}
+
+.key-btn:active {
+  transform:scale(.96);
+  opacity:.85;
+}
+
+/* анимация “всасывания” клавиатуры при завершении */
+
+.game-keyboard.keyboard-hide {
+  animation:keyboard-suck-out .4s ease forwards;
+  pointer-events:none;
+}
+
+@keyframes keyboard-suck-out {
+  0% {
+    transform:translateX(-50%) scale(1);
+    opacity:1;
+  }
+  100% {
+    transform:translateX(-50%) translateY(40px) scale(0.7);
+    opacity:0;
+  }
+}
+
+/* summary */
+
+.game-summary {
+  margin-top:12px;
+  border-radius:14px;
+  padding:10px;
+  background:rgba(7,10,20,0.95);
+  border:1px solid rgba(255,255,255,0.2);
+  font-size:12px;
+}
+
+/* кнопки после матча */
+
+.game-actions {
+  margin-top:8px;
+  display:flex;
+  gap:8px;
+}
+
+.game-actions .btn-secondary {
+  margin-top:0;
+}
+
+/* TRAINING MENU */
+
+.training-extra {
+  margin-top:8px;
+}
+
+.training-subtitle {
+  font-size:11px;
+  opacity:.75;
+  margin-bottom:4px;
+}
+
+.training-btn-row {
+  display:flex;
+  gap:8px;
+  margin-top:6px;
+}
+
+.training-inline-btn {
+  flex:1;
+  border-radius:999px;
+  padding:6px 8px;
+  font-size:12px;
+  border:1px solid rgba(255,255,255,0.2);
+  background:rgba(7,10,20,0.9);
+  color:inherit;
+  cursor:pointer;
+}
+
+.training-inline-btn:active {
+  transform:scale(.97);
+  opacity:.9;
+}
+
+/* Адаптив для клавиатуры (чтобы не вылезала) */
+
+@media (max-width:360px) {
+  .app {padding:10px;padding-bottom:80px;}
+  body.in-game .app {padding-bottom:8px;}
+  .glass-card {padding:14px 12px 16px;}
+  .glass-card.game-mode {padding-bottom:100px;}
+  .mode-grid-two {grid-template-columns:repeat(2,minmax(0,1fr));}
+  .game-keyboard {
+    transform:translateX(-50%) scale(0.9);
+    padding:4px 8px 6px;
+  }
+  .key-btn {
+    font-size:18px;
+  }
+}
+
+@media (min-width:420px) {
+  .game-keyboard {
+    transform:translateX(-50%) scale(1.05);
+  }
+}
