@@ -860,17 +860,33 @@ body.in-game .app {
   transform-origin:50% 100%;
   width:100%;
   max-width:480px;
-  padding:4px 8px 6px;
+  padding:4px 10px 8px; /* побольше отступы слева/справа, чтобы не прилипать к краям */
   display:flex;
   flex-direction:column;
-  gap:6px;
   z-index:20;
+}
+
+.keyboard-plate {
+  width:100%;
+  border-radius:16px 16px 10px 10px;
+  padding:6px 6px 8px;
+  background:rgba(5,9,18,0.96);
+  border:1px solid rgba(255,255,255,0.18);
+  backdrop-filter:blur(18px) saturate(180%);
+  -webkit-backdrop-filter:blur(18px) saturate(180%);
+  box-shadow:
+    0 -4px 18px rgba(0,0,0,0.8),
+    0 0 18px rgba(0,0,0,0.6);
 }
 
 .key-row {
   display:flex;
   gap:4px;
   justify-content:space-between;
+}
+
+.key-row + .key-row {
+  margin-top:4px;
 }
 
 .key-row-space {
@@ -884,7 +900,7 @@ body.in-game .app {
   border-radius:8px;
   border:1px solid rgba(255,255,255,0.2);
   background:rgba(7,10,20,0.95);
-  font-size:20px; /* увеличили ещё на ~10% */
+  font-size:20px;
   color:inherit;
   cursor:pointer;
 }
@@ -984,7 +1000,10 @@ body.in-game .app {
   .mode-grid-two {grid-template-columns:repeat(2,minmax(0,1fr));}
   .game-keyboard {
     transform:translateX(-50%) scale(0.9);
-    padding:4px 6px 6px;
+    padding:4px 8px 6px;
+  }
+  .key-btn {
+    font-size:18px;
   }
 }
 
