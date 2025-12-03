@@ -91,8 +91,6 @@ let activeGameTimer = null;
 let preStartTimer = null;
 let activeGameState = null;
 let inputEnabled = false;
-// game state:
-// { ... }
 
 /* --------- навигация снизу --------- */
 
@@ -134,13 +132,15 @@ function isSameText(a, b) {
 
 function triggerKeyHaptics() {
   try {
-    if (tg && tg.HapticFeedback && typeof tg.HapticFeedback.impactOccurred === "function") {
-      tg.HapticFeedback.impactOccurred("light");
+    if (tg && tg.HapticFeedback) {
+      // двойной вызов, чтобы наверняка дернуть механизм
+      tg.HapticFeedback.impactOccurred?.("light");
+      tg.HapticFeedback.selectionChanged?.();
     } else if (window.navigator && typeof navigator.vibrate === "function") {
-      navigator.vibrate(10);
+      navigator.vibrate(12);
     }
   } catch (e) {
-    // тихо игнорируем, если что-то пошло не так
+    // молча игнорируем
   }
 }
 
@@ -170,8 +170,10 @@ function initTelegram() {
   tg.expand();
 
   try {
-    tg.setHeaderColor?.("secondary");
+    // прозрачная шапка + тёмный фон под апп
+    tg.setHeaderColor?.("rgba(0,0,0,0)");
     tg.setBackgroundColor?.("#05060a");
+    tg.setBottomBarColor?.("rgba(0,0,0,0)");
   } catch (e) {}
 
   user = tg.initDataUnsafe?.user || null;
@@ -925,7 +927,7 @@ function attachFundHandlers() {
   }
 }
 
-/* ---------- ГЕНЕРАЦИЯ ТЕКСТА (без цифр и примеров) ---------- */
+/* ---------- ГЕНЕРАЦИЯ ТЕКСТА (без цифр) ---------- */
 
 function generateLine(difficulty, roundIndex) {
   const baseTextsEasy = [
@@ -1322,7 +1324,7 @@ function attachGameHandlers() {
       const key = btn.dataset.key;
       if (!key) return;
 
-      triggerKeyHaptics(); // вибрация / haptic на каждое нажатие
+      triggerKeyHaptics(); // вибрация / haptics на каждое нажатие
 
       const prev = activeGameState.lastInput || "";
       const next = prev + key; // только добавление
@@ -1345,7 +1347,7 @@ function triggerErrorFlash() {
 
 /* логика ввода (через нашу клавиатуру) */
 
-function handleGameInput(value, lastKey) {
+function handleGameInput(value) {
   if (!activeGameState || activeGameState.finished) return;
 
   const prev = activeGameState.lastInput || "";
