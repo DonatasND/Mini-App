@@ -21,6 +21,7 @@ body {
     radial-gradient(circle at 100% 100%, rgba(129,80,255,0.18), transparent 55%),
     linear-gradient(145deg,#05060a,#080910,#050509);
   color:var(--tg-theme-text-color,#f8fbff);
+  overflow-x:hidden; /* чтобы точно не было горизонтального скролла */
 }
 
 button {
@@ -191,6 +192,8 @@ body.in-game .app {
   flex-direction:column;
   gap:12px;
   transition:box-shadow .15s ease,border-color .15s ease;
+  max-width:100%;
+  overflow:hidden; /* safety */
 }
 
 /* для игры оставляем запас внизу под клаву */
@@ -747,7 +750,7 @@ body.in-game .app {
   border-color:rgba(255,120,120,1);
 }
 
-/* "колесо" строк — фиксированное поле */
+/* "колесо" строк — фиксированное поле + фикс ширина */
 
 .game-lines {
   margin-top:10px;
@@ -761,7 +764,9 @@ body.in-game .app {
   display:flex;
   flex-direction:column;
   justify-content:center;
-  overflow:hidden;             /* защита от вылезания */
+  overflow:hidden;             /* защита от вылезания и по вертикали, и по горизонтали */
+  width:100%;
+  max-width:100%;
 }
 
 .game-lines.loading .game-line {
@@ -778,6 +783,7 @@ body.in-game .app {
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  max-width:100%; /* не расширяем контейнер */
 }
 
 .game-line-prev {
@@ -802,6 +808,7 @@ body.in-game .app {
   display:flex;
   align-items:center;
   gap:6px;
+  max-width:100%;
 }
 
 .game-scroll-marker {
@@ -815,6 +822,7 @@ body.in-game .app {
 .game-scroll-viewport {
   flex:1;
   overflow:hidden;
+  max-width:100%;
 }
 
 .game-scroll-inner {
@@ -860,7 +868,7 @@ body.in-game .app {
   transform-origin:50% 100%;
   width:100%;
   max-width:480px;
-  padding:4px 10px 8px; /* побольше отступы слева/справа, чтобы не прилипать к краям */
+  padding:4px 10px 8px; /* побольше отступы слева/справа */
   display:flex;
   flex-direction:column;
   z-index:20;
