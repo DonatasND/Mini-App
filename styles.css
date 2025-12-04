@@ -9,6 +9,10 @@
   -webkit-tap-highlight-color:transparent;
 }
 
+html, body {
+  overflow-x:hidden;
+}
+
 body {
   margin:0;
   padding:0;
@@ -21,7 +25,6 @@ body {
     radial-gradient(circle at 100% 100%, rgba(129,80,255,0.18), transparent 55%),
     linear-gradient(145deg,#05060a,#080910,#050509);
   color:var(--tg-theme-text-color,#f8fbff);
-  overflow-x:hidden; /* чтобы точно не было горизонтального скролла */
 }
 
 button {
@@ -193,7 +196,7 @@ body.in-game .app {
   gap:12px;
   transition:box-shadow .15s ease,border-color .15s ease;
   max-width:100%;
-  overflow:hidden; /* safety */
+  overflow:hidden;
 }
 
 /* для игры оставляем запас внизу под клаву */
@@ -419,7 +422,6 @@ body.in-game .app {
   z-index:10;
 }
 
-/* когда кнопки скрыты (во время матча), островок визуально есть, но не перехватывает клики */
 .bottom-nav.nav-buttons-hidden {
   pointer-events:none;
 }
@@ -721,7 +723,7 @@ body.in-game .app {
   background:linear-gradient(90deg,#7ecaff,#50ffce);
 }
 
-/* жизни (ошибки) */
+/* жизни — сердечки */
 
 .game-lives {
   margin-top:6px;
@@ -735,22 +737,30 @@ body.in-game .app {
 .game-lives-dots {
   display:flex;
   gap:4px;
+  flex-wrap:wrap;
 }
 
-.life-dot {
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,0.6);
-  background:transparent;
+.life-heart {
+  width:14px;
+  height:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
 }
 
-.life-dot-lost {
-  background:rgba(255,80,80,0.95);
-  border-color:rgba(255,120,120,1);
+.life-heart::before {
+  content:"❤";
+  color:#ff4b6a;
 }
 
-/* "колесо" строк — фиксированное поле + фикс ширина */
+.life-heart-lost::before {
+  content:"💔";
+  color:#222;
+  text-shadow:none;
+}
+
+/* "колесо" строк — фиксированное поле по высоте и ширине */
 
 .game-lines {
   margin-top:10px;
@@ -760,11 +770,11 @@ body.in-game .app {
   border:1px solid rgba(255,255,255,0.18);
   font-family:"SF Mono",ui-monospace,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   position:relative;
-  height:110px;                /* фиксированная высота */
+  height:110px;
   display:flex;
   flex-direction:column;
   justify-content:center;
-  overflow:hidden;             /* защита от вылезания и по вертикали, и по горизонтали */
+  overflow:hidden;
   width:100%;
   max-width:100%;
 }
@@ -773,17 +783,11 @@ body.in-game .app {
   opacity:0;
 }
 
-.game-lines.start-flash {
-  box-shadow:0 0 18px rgba(126,202,255,0.75);
-  border-color:rgba(126,202,255,0.8);
-}
-
 .game-line {
   min-height:0;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  max-width:100%; /* не расширяем контейнер */
 }
 
 .game-line-prev {
@@ -794,6 +798,7 @@ body.in-game .app {
 
 .game-line-current {
   margin:2px 0;
+  width:100%;
 }
 
 .game-line-next {
@@ -807,8 +812,7 @@ body.in-game .app {
 .game-scroll-wrapper {
   display:flex;
   align-items:center;
-  gap:6px;
-  max-width:100%;
+  gap:3px; /* ближе к маркеру */
 }
 
 .game-scroll-marker {
@@ -822,6 +826,7 @@ body.in-game .app {
 .game-scroll-viewport {
   flex:1;
   overflow:hidden;
+  width:100%;
   max-width:100%;
 }
 
@@ -831,12 +836,13 @@ body.in-game .app {
   line-height:1.1;
   transform:translateX(0);
   transition:transform .08s linear;
+  will-change:transform;
 }
 
 .game-scroll-char {
   display:inline-block;
   width:1ch;
-  color:rgba(220,230,245,0.35); /* серые ненапечатанные буквы */
+  color:rgba(220,230,245,0.35);
 }
 
 .game-scroll-char.active-char {
@@ -868,23 +874,25 @@ body.in-game .app {
   transform-origin:50% 100%;
   width:100%;
   max-width:480px;
-  padding:4px 10px 8px; /* побольше отступы слева/справа */
+  padding:4px 10px 8px;
   display:flex;
   flex-direction:column;
   z-index:20;
 }
 
+/* стили ближе к системной клавиатуре */
+
 .keyboard-plate {
   width:100%;
-  border-radius:16px 16px 10px 10px;
-  padding:6px 6px 8px;
-  background:rgba(5,9,18,0.96);
-  border:1px solid rgba(255,255,255,0.18);
+  border-radius:18px 18px 10px 10px;
+  padding:6px 4px 10px;
+  background:rgba(18,18,20,0.98);
+  border:1px solid rgba(255,255,255,0.06);
   backdrop-filter:blur(18px) saturate(180%);
   -webkit-backdrop-filter:blur(18px) saturate(180%);
   box-shadow:
-    0 -4px 18px rgba(0,0,0,0.8),
-    0 0 18px rgba(0,0,0,0.6);
+    0 -2px 14px rgba(0,0,0,0.85),
+    0 0 10px rgba(0,0,0,0.5);
 }
 
 .key-row {
@@ -904,13 +912,16 @@ body.in-game .app {
 .key-btn {
   flex:1 1 0;
   min-width:0;
-  padding:8px 4px;
-  border-radius:8px;
-  border:1px solid rgba(255,255,255,0.2);
-  background:rgba(7,10,20,0.95);
+  padding:9px 4px;
+  border-radius:9px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(40,40,46,0.97);
   font-size:20px;
-  color:inherit;
+  color:#f5f5f7;
   cursor:pointer;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04),
+    0 1px 3px rgba(0,0,0,0.7);
 }
 
 .key-btn-wide {
@@ -919,8 +930,11 @@ body.in-game .app {
 }
 
 .key-btn:active {
-  transform:scale(.96);
-  opacity:.85;
+  transform:scale(.97);
+  opacity:.9;
+  background:rgba(70,70,80,0.98);
+  box-shadow:
+    inset 0 1px 2px rgba(0,0,0,0.7);
 }
 
 /* анимация “всасывания” клавиатуры при завершении */
