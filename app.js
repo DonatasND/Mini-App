@@ -173,10 +173,9 @@ function initTelegram() {
   tg.expand();
 
   try {
-    // Fullscreen + попытка сделать шапку максимально прозрачной
     tg.requestFullscreen?.();
-    tg.setHeaderColor?.("bg_color");           // цвет шапки из темы
-    tg.setHeaderColor?.("#00000000");          // попытка задать прозрачный цвет (если клиент поддерживает)
+    tg.setHeaderColor?.("bg_color");
+    tg.setHeaderColor?.("#00000000");
     tg.setBackgroundColor?.("#05060a");
   } catch (e) {}
 
@@ -1143,7 +1142,7 @@ function renderGameScreen() {
   `;
 
   updateRoundUI();
-  updateGameLinesUI(0);
+  updateGameLinesUI(0);     // сразу рисуем первую строку
   updateGameProgressUI(0, 0);
   updateLivesUI();
 
@@ -1163,7 +1162,7 @@ function getPrevLine() {
 
 function getNextLine() {
   const { roundIndex, lineIndex, rounds } = activeGameState;
-  if (lineIndex < LINES_PER_ROонд - 1) return rounds[roundIndex][lineIndex + 1];
+  if (lineIndex < LINES_PER_ROUND - 1) return rounds[roundIndex][lineIndex + 1];
   if (roundIndex < MATCH_ROUNDS - 1) return rounds[roundIndex + 1][0];
   return "";
 }
@@ -1270,7 +1269,7 @@ function startPreCountdown() {
       triggerStartFlash();
       inputEnabled = true;
       startStatsTimer();
-      updateGameLinesUI(0);
+      updateGameLinesUI(0); // после отсчёта снова отрисовываем строку
     }
   }, 1000);
 }
