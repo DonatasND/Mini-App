@@ -43,7 +43,7 @@ button {
   flex-direction:column;
   padding:14px;
   /* ~64px отступ под прозрачной шапкой + safe-area */
-  padding-top:calc(64px + env(safe-area-inset-top, 0px));
+  padding-top:calc(90px + env(safe-area-inset-top, 0px));
   padding-bottom:80px;
   gap:12px;
 }
