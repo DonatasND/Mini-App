@@ -175,7 +175,7 @@ function initTelegram() {
   try {
     tg.requestFullscreen?.();
     tg.setHeaderColor?.("bg_color");
-    tg.setHeaderColor?.("#00000000");
+    tg.setHeaderColor?.("#00000000"); // попытка прозрачной шапки
     tg.setBackgroundColor?.("#05060a");
   } catch (e) {}
 
@@ -1117,8 +1117,9 @@ function renderGameScreen() {
           <button class="key-btn" data-key="ж">ж</button>
           <button class="key-btn" data-key="э">э</button>
         </div>
-        <div class="key-row">
-          <button class="key-btn" data-key="я">я</button>
+        <div class="key-row key-row-third">
+          <div class="key-spacer"></div>
+          <button class="key-btn key-btn-small" data-key="я">я</button>
           <button class="key-btn" data-key="ч">ч</button>
           <button class="key-btn" data-key="с">с</button>
           <button class="key-btn" data-key="м">м</button>
@@ -1126,10 +1127,13 @@ function renderGameScreen() {
           <button class="key-btn" data-key="т">т</button>
           <button class="key-btn" data-key="ь">ь</button>
           <button class="key-btn" data-key="б">б</button>
-          <button class="key-btn" data-key="ю">ю</button>
+          <button class="key-btn key-btn-small" data-key="ю">ю</button>
+          <div class="key-spacer"></div>
         </div>
         <div class="key-row key-row-space">
+          <button class="key-btn key-btn-small" data-key=",">,</button>
           <button class="key-btn key-btn-wide" data-key=" ">Пробел</button>
+          <button class="key-btn key-btn-small" data-key=".">.</button>
         </div>
       </div>
     </div>
@@ -1251,7 +1255,6 @@ function startPreCountdown() {
   inputEnabled = false;
   let left = PRESTART_COUNTDOWN_SEC;
   cdEl.textContent = left;
-  lines.classList.add("loading");
 
   if (preStartTimer) clearInterval(preStartTimer);
 
@@ -1265,7 +1268,6 @@ function startPreCountdown() {
       clearInterval(preStartTimer);
       preStartTimer = null;
       cdEl.textContent = "";
-      lines.classList.remove("loading");
       triggerStartFlash();
       inputEnabled = true;
       startStatsTimer();
@@ -1539,8 +1541,6 @@ function startInterRoundPause() {
   activeGameState.pauseStartedAt = Date.now();
   inputEnabled = false;
 
-  lines.classList.add("loading");
-
   let left = INTER_ROUND_COUNTDOWN_SEC;
   cdEl.textContent = `Раунд ${activeGameState.roundIndex + 1} через ${left}`;
 
@@ -1558,8 +1558,6 @@ function startInterRoundPause() {
       preStartTimer = null;
 
       cdEl.textContent = "";
-      lines.classList.remove("loading");
-
       if (activeGameState.pauseStartedAt) {
         activeGameState.pauseTotalMs += Date.now() - activeGameState.pauseStartedAt;
         activeGameState.pauseStartedAt = null;
