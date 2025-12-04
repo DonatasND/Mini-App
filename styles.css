@@ -34,7 +34,7 @@ button {
   border:none;
 }
 
-/* базовая высота под навигацию */
+/* базовая высота под навигацию + safe-area сверху */
 .app {
   min-height:100vh;
   max-width:480px;
@@ -42,6 +42,7 @@ button {
   display:flex;
   flex-direction:column;
   padding:14px;
+  padding-top:calc(14px + env(safe-area-inset-top, 0px));
   padding-bottom:80px;
   gap:12px;
 }
@@ -452,7 +453,7 @@ body.in-game .app {
   cursor:pointer;
   color:rgba(234,242,255,0.96);
   text-shadow:0 0 4px rgba(0,0,0,0.6);
-  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease,opacity .15s ease;
+  transition:transform .15s.ease,box-shadow .15s.ease,border-color .15s.ease,opacity .15s.ease;
   outline:none;
 }
 
@@ -1015,7 +1016,7 @@ body.in-game .app {
 /* Адаптив для клавиатуры (чтобы не вылезала) */
 
 @media (max-width:360px) {
-  .app {padding:10px;padding-bottom:80px;}
+  .app {padding:10px;padding-top:calc(10px + env(safe-area-inset-top, 0px));padding-bottom:80px;}
   body.in-game .app {padding-bottom:8px;}
   .glass-card {padding:14px 12px 16px;}
   .glass-card.game-mode {padding-bottom:100px;}
