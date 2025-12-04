@@ -153,8 +153,15 @@ document.addEventListener("DOMContentLoaded", () => {
   initTelegram();
   initUI();
   renderSection("home");
-  showBottomNav();
 });
+
+function hideSplashSoon() {
+  const splash = document.getElementById("splash");
+  if (!splash) return;
+  setTimeout(() => {
+    splash.classList.add("splash-hide");
+  }, 1200);
+}
 
 function initTelegram() {
   tg = window.Telegram?.WebApp || null;
@@ -166,6 +173,7 @@ function initTelegram() {
     nameEl.textContent = "Локальный режим";
     avatarEl.textContent = "L";
     updateRatingHeader();
+    hideSplashSoon();
     return;
   }
 
@@ -175,7 +183,7 @@ function initTelegram() {
   try {
     tg.requestFullscreen?.();
     tg.setHeaderColor?.("bg_color");
-    tg.setHeaderColor?.("#00000000"); // попытка прозрачной шапки
+    tg.setHeaderColor?.("#00000000"); // прозрачная шапка
     tg.setBackgroundColor?.("#05060a");
   } catch (e) {}
 
@@ -197,6 +205,7 @@ function initTelegram() {
 
   tg.MainButton.hide();
   updateRatingHeader();
+  hideSplashSoon();
 }
 
 function updateRatingHeader() {
@@ -1119,7 +1128,7 @@ function renderGameScreen() {
         </div>
         <div class="key-row key-row-third">
           <div class="key-spacer"></div>
-          <button class="key-btn key-btn-small" data-key="я">я</button>
+          <button class="key-btn" data-key="я">я</button>
           <button class="key-btn" data-key="ч">ч</button>
           <button class="key-btn" data-key="с">с</button>
           <button class="key-btn" data-key="м">м</button>
@@ -1127,7 +1136,7 @@ function renderGameScreen() {
           <button class="key-btn" data-key="т">т</button>
           <button class="key-btn" data-key="ь">ь</button>
           <button class="key-btn" data-key="б">б</button>
-          <button class="key-btn key-btn-small" data-key="ю">ю</button>
+          <button class="key-btn" data-key="ю">ю</button>
           <div class="key-spacer"></div>
         </div>
         <div class="key-row key-row-space">
@@ -1146,7 +1155,7 @@ function renderGameScreen() {
   `;
 
   updateRoundUI();
-  updateGameLinesUI(0);     // сразу рисуем первую строку
+  updateGameLinesUI(0);     // текст подготовлен, но скрыт классом loading
   updateGameProgressUI(0, 0);
   updateLivesUI();
 
@@ -1268,10 +1277,11 @@ function startPreCountdown() {
       clearInterval(preStartTimer);
       preStartTimer = null;
       cdEl.textContent = "";
+      lines.classList.remove("loading"); // показываем текст после START
       triggerStartFlash();
       inputEnabled = true;
       startStatsTimer();
-      updateGameLinesUI(0); // после отсчёта снова отрисовываем строку
+      updateGameLinesUI(0);
     }
   }, 1000);
 }
@@ -1540,6 +1550,7 @@ function startInterRoundPause() {
   activeGameState.inInterRoundPause = true;
   activeGameState.pauseStartedAt = Date.now();
   inputEnabled = false;
+  lines.classList.add("loading"); // на паузе текст прячем
 
   let left = INTER_ROUND_COUNTDOWN_SEC;
   cdEl.textContent = `Раунд ${activeGameState.roundIndex + 1} через ${left}`;
@@ -1564,6 +1575,7 @@ function startInterRoundPause() {
       }
       activeGameState.inInterRoundPause = false;
 
+      lines.classList.remove("loading"); // показываем строки нового раунда
       triggerStartFlash();
       inputEnabled = true;
       updateGameLinesUI(0);
