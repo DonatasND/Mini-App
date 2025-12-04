@@ -7,7 +7,7 @@ const LINES_PER_ROUND = 7;
 
 const PRESTART_COUNTDOWN_SEC = 3;
 const INTER_ROUND_COUNTDOWN_SEC = 3;
-const MAX_ERRORS_PER_ROUND = 5;
+const MAX_ERRORS_PER_ROUND = 10; // 10 жизней
 
 const ratingState = {
   current: 1240,
@@ -92,6 +92,25 @@ let preStartTimer = null;
 let activeGameState = null;
 let inputEnabled = false;
 
+/* --------- HAPTIC / ВИБРАЦИЯ --------- */
+
+function triggerKeyHaptics() {
+  try {
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+      const h = window.Telegram.WebApp.HapticFeedback;
+      if (typeof h.impactOccurred === "function") {
+        h.impactOccurred("light");
+      }
+      if (typeof h.notificationOccurred === "function") {
+        h.notificationOccurred("success");
+      }
+    }
+    if (window.navigator && typeof navigator.vibrate === "function") {
+      navigator.vibrate(15);
+    }
+  } catch (e) {}
+}
+
 /* --------- навигация снизу --------- */
 
 function hideBottomNav() {
@@ -128,22 +147,6 @@ function isSameText(a, b) {
   return normalizeText(a) === normalizeText(b);
 }
 
-/* --------- HAPTIC / ВИБРАЦИЯ --------- */
-
-function triggerKeyHaptics() {
-  try {
-    if (tg && tg.HapticFeedback) {
-      // двойной вызов, чтобы наверняка дернуть механизм
-      tg.HapticFeedback.impactOccurred?.("light");
-      tg.HapticFeedback.selectionChanged?.();
-    } else if (window.navigator && typeof navigator.vibrate === "function") {
-      navigator.vibrate(12);
-    }
-  } catch (e) {
-    // молча игнорируем
-  }
-}
-
 /* --------- init --------- */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -170,10 +173,11 @@ function initTelegram() {
   tg.expand();
 
   try {
-    // прозрачная шапка + тёмный фон под апп
-    tg.setHeaderColor?.("rgba(0,0,0,0)");
+    // Fullscreen + попытка сделать шапку максимально прозрачной
+    tg.requestFullscreen?.();
+    tg.setHeaderColor?.("bg_color");           // цвет шапки из темы
+    tg.setHeaderColor?.("#00000000");          // попытка задать прозрачный цвет (если клиент поддерживает)
     tg.setBackgroundColor?.("#05060a");
-    tg.setBottomBarColor?.("rgba(0,0,0,0)");
   } catch (e) {}
 
   user = tg.initDataUnsafe?.user || null;
@@ -927,7 +931,7 @@ function attachFundHandlers() {
   }
 }
 
-/* ---------- ГЕНЕРАЦИЯ ТЕКСТА (без цифр) ---------- */
+/* ---------- ГЕНЕРАЦИЯ ТЕКСТА (без цифр и примеров) ---------- */
 
 function generateLine(difficulty, roundIndex) {
   const baseTextsEasy = [
@@ -1023,7 +1027,8 @@ function startTrainingGame(difficulty) {
     pauseStartedAt: null,
     inInterRoundPause: false,
     correctCharsTotal: 0,
-    typedCharsTotal: 0
+    typedCharsTotal: 0,
+    currentLineCorrectCharsAttempt: 0
   };
 
   document.body.classList.add("in-game");
@@ -1037,6 +1042,10 @@ function renderGameScreen() {
 
   hideBottomNav();
   card.classList.add("game-mode");
+
+  const heartsHtml = Array.from({ length: MAX_ERRORS_PER_ROUND }, (_, i) =>
+    `<span class="life-heart" data-life="${i}"></span>`
+  ).join("");
 
   card.innerHTML = `
     <div class="game-header">
@@ -1067,13 +1076,9 @@ function renderGameScreen() {
     </div>
 
     <div class="game-lives">
-      <div class="game-lives-label">Ошибки (жизни)</div>
+      <div class="game-lives-label">Жизни</div>
       <div class="game-lives-dots" id="game-lives-dots">
-        <span class="life-dot" data-life="0"></span>
-        <span class="life-dot" data-life="1"></span>
-        <span class="life-dot" data-life="2"></span>
-        <span class="life-dot" data-life="3"></span>
-        <span class="life-dot" data-life="4"></span>
+        ${heartsHtml}
       </div>
     </div>
 
@@ -1158,12 +1163,12 @@ function getPrevLine() {
 
 function getNextLine() {
   const { roundIndex, lineIndex, rounds } = activeGameState;
-  if (lineIndex < LINES_PER_ROUND - 1) return rounds[roundIndex][lineIndex + 1];
+  if (lineIndex < LINES_PER_ROонд - 1) return rounds[roundIndex][lineIndex + 1];
   if (roundIndex < MATCH_ROUNDS - 1) return rounds[roundIndex + 1][0];
   return "";
 }
 
-/* обновлённый вывод строк с "бегущей строкой" */
+/* вывод строк с "бегущей строкой" */
 
 function updateGameLinesUI(typedLength) {
   if (!activeGameState) return;
@@ -1222,9 +1227,9 @@ function updateLivesUI() {
   if (!activeGameState) return;
   const dotsWrap = document.getElementById("game-lives-dots");
   if (!dotsWrap) return;
-  const dots = dotsWrap.querySelectorAll(".life-dot");
-  dots.forEach((dot, idx) => {
-    dot.classList.toggle("life-dot-lost", idx < activeGameState.errorsInRound);
+  const hearts = dotsWrap.querySelectorAll(".life-heart");
+  hearts.forEach((heart, idx) => {
+    heart.classList.toggle("life-heart-lost", idx < activeGameState.errorsInRound);
   });
 }
 
@@ -1324,10 +1329,10 @@ function attachGameHandlers() {
       const key = btn.dataset.key;
       if (!key) return;
 
-      triggerKeyHaptics(); // вибрация / haptics на каждое нажатие
+      triggerKeyHaptics();
 
       const prev = activeGameState.lastInput || "";
-      const next = prev + key; // только добавление
+      const next = prev + key;
 
       handleGameInput(next, key);
     });
@@ -1347,7 +1352,7 @@ function triggerErrorFlash() {
 
 /* логика ввода (через нашу клавиатуру) */
 
-function handleGameInput(value) {
+function handleGameInput(value, lastKey) {
   if (!activeGameState || activeGameState.finished) return;
 
   const prev = activeGameState.lastInput || "";
@@ -1373,6 +1378,15 @@ function handleGameInput(value) {
     if (!isSameChar(typedChar, expectedChar)) {
       activeGameState.errorsInRound += 1;
       activeGameState.totalErrors += 1;
+
+      if (activeGameState.currentLineCorrectCharsAttempt > 0) {
+        activeGameState.correctCharsTotal = Math.max(
+          0,
+          activeGameState.correctCharsTotal - activeGameState.currentLineCorrectCharsAttempt
+        );
+        activeGameState.currentLineCorrectCharsAttempt = 0;
+      }
+
       triggerErrorFlash();
       updateLivesUI();
 
@@ -1390,6 +1404,7 @@ function handleGameInput(value) {
     }
 
     activeGameState.correctCharsTotal += 1;
+    activeGameState.currentLineCorrectCharsAttempt += 1;
   }
 
   activeGameState.lastInput = value;
@@ -1405,6 +1420,8 @@ function handleGameInput(value) {
 
 function advanceLine() {
   if (!activeGameState) return;
+
+  activeGameState.currentLineCorrectCharsAttempt = 0;
 
   const isLastLineInRound = activeGameState.lineIndex === LINES_PER_ROUND - 1;
   const isLastRound = activeGameState.roundIndex === MATCH_ROUNDS - 1;
