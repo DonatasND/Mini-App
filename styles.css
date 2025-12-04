@@ -34,7 +34,7 @@ button {
   border:none;
 }
 
-/* базовая высота под навигацию + safe-area сверху */
+/* базовая высота под навигацию + фиксированный отступ от шапки телеги */
 .app {
   min-height:100vh;
   max-width:480px;
@@ -42,7 +42,8 @@ button {
   display:flex;
   flex-direction:column;
   padding:14px;
-  padding-top:calc(14px + env(safe-area-inset-top, 0px));
+  /* ~64px отступ под прозрачной шапкой + safe-area */
+  padding-top:calc(64px + env(safe-area-inset-top, 0px));
   padding-bottom:80px;
   gap:12px;
 }
@@ -453,7 +454,7 @@ body.in-game .app {
   cursor:pointer;
   color:rgba(234,242,255,0.96);
   text-shadow:0 0 4px rgba(0,0,0,0.6);
-  transition:transform .15s.ease,box-shadow .15s.ease,border-color .15s.ease,opacity .15s.ease;
+  transition:transform .15s ease,box-shadow .15s.ease,border-color .15s ease,opacity .15s ease;
   outline:none;
 }
 
@@ -780,10 +781,7 @@ body.in-game .app {
   max-width:100%;
 }
 
-.game-lines.loading .game-line {
-  opacity:0;
-}
-
+/* Больше НЕ скрываем текст в режиме loading, чтобы сразу был виден */
 .game-line {
   min-height:0;
   white-space:nowrap;
@@ -906,8 +904,20 @@ body.in-game .app {
   margin-top:4px;
 }
 
+/* третья строка — сетка, чтобы "я" была под "ы", "ю" под "ж" */
+.key-row-third {
+  display:grid;
+  grid-template-columns:repeat(11,minmax(0,1fr));
+  gap:4px;
+}
+
+.key-spacer {
+  pointer-events:none;
+}
+
+/* нижняя строка с пробелом и знаками */
 .key-row-space {
-  justify-content:center;
+  justify-content:space-between;
 }
 
 .key-btn {
@@ -925,9 +935,16 @@ body.in-game .app {
     0 1px 3px rgba(0,0,0,0.7);
 }
 
+.key-btn-small {
+  flex:0 0 14%;
+  max-width:14%;
+  padding-inline:2px;
+  font-size:18px;
+}
+
 .key-btn-wide {
-  flex:0 0 70%;
-  max-width:70%;
+  flex:1;
+  max-width:none;
 }
 
 .key-btn:active {
@@ -1016,7 +1033,11 @@ body.in-game .app {
 /* Адаптив для клавиатуры (чтобы не вылезала) */
 
 @media (max-width:360px) {
-  .app {padding:10px;padding-top:calc(10px + env(safe-area-inset-top, 0px));padding-bottom:80px;}
+  .app {
+    padding:10px;
+    padding-top:calc(60px + env(safe-area-inset-top, 0px));
+    padding-bottom:80px;
+  }
   body.in-game .app {padding-bottom:8px;}
   .glass-card {padding:14px 12px 16px;}
   .glass-card.game-mode {padding-bottom:100px;}
@@ -1025,9 +1046,7 @@ body.in-game .app {
     transform:translateX(-50%) scale(0.9);
     padding:4px 8px 6px;
   }
-  .key-btn {
-    font-size:18px;
-  }
+  .key-btn {font-size:18px;}
 }
 
 @media (min-width:420px) {
