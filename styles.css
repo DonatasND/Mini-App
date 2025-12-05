@@ -886,50 +886,78 @@ body.in-game .app {
   text-shadow:0 0 18px rgba(0,0,0,0.9);
 }
 
-/* ---------- KEYBOARD + MATRIX (с твоими правками) ---------- */
+/* ---------- KEYBOARD + MATRIX (актуальная версия) ---------- */
 
 .game-keyboard-wrapper {
-  position: fixed;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 480px;
-  z-index: 20;
-  pointer-events: none;
+  position:fixed;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:480px;
+  z-index:20;
+  pointer-events:none;
 }
 
-/* Островок Матрицы */
+/* Островок Matrix — по ширине клавиатуры */
 .matrix-island {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 10vh;
-  border-radius: 40px 40px 0 0;
-  background: radial-gradient(circle at 0% 0%, rgba(0, 255, 128, 0.22), rgba(5, 10, 8, 0.98));
-  border: 1px solid rgba(120, 255, 170, 0.55);
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:0;
+  height:10vh;
+  border-radius:22px 22px 0 0;
+  background:radial-gradient(circle at 0% 0%, rgba(0,255,128,0.2), rgba(5,10,8,0.95));
+  border:1px solid rgba(120,255,170,0.4);
   box-shadow:
-    0 0 16px rgba(0,255,128,0.45),
-    0 0 34px rgba(0,160,90,0.55);
+    0 0 14px rgba(0,255,128,0.3),
+    0 0 28px rgba(0,160,90,0.45);
   overflow:hidden;
   opacity:0;
-  transform-origin:50% 100%;
-  transition:opacity .15s ease;
+  transition:opacity .2s ease;
 }
 
 body.in-game .matrix-island {
-  opacity: 1;
+  opacity:1;
 }
 
-/* Клавиатура — с зазором над островком */
+/* Matrix rain символы */
+.matrix-char {
+  position:absolute;
+  top:-20px;
+  font-size:16px;
+  color:rgba(0,255,128,0.75);
+  text-shadow:
+    0 0 5px rgba(0,255,128,0.9),
+    0 0 8px rgba(0,255,128,0.6);
+  animation:matrixFall linear infinite;
+  pointer-events:none;
+  user-select:none;
+  white-space:pre;
+}
+
+@keyframes matrixFall {
+  0% {
+    opacity:0;
+    transform:translateY(0);
+  }
+  10% {
+    opacity:0.85;
+  }
+  100% {
+    opacity:0;
+    transform:translateY(150%);
+  }
+}
+
+/* Клавиатура над островком */
 .game-keyboard {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(10vh + 8px);
-  padding: 0 10px 4px;
-  pointer-events: auto;
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:calc(10vh + 10px);
+  padding:0 10px 4px;
+  pointer-events:auto;
 }
 
 .keyboard-plate {
@@ -1084,15 +1112,14 @@ body.in-game .matrix-island {
   .glass-card {padding:14px 12px 16px;}
   .glass-card.game-mode {padding-bottom:100px;}
 
-  /* клавиатура немного выше — адаптив */
   .game-keyboard {
-    bottom: calc(11vh + 8px);
-    padding: 0 8px 4px;
+    bottom:calc(11vh + 8px);
+    padding:0 8px 4px;
   }
 }
 
 @media (min-width:420px) {
   .game-keyboard {
-    bottom: calc(9vh + 8px);
+    bottom:calc(9vh + 8px);
   }
 }
