@@ -7,7 +7,7 @@ const LINES_PER_ROUND = 7;
 
 const PRESTART_COUNTDOWN_SEC = 3;
 const INTER_ROUND_COUNTDOWN_SEC = 3;
-const MAX_ERRORS_PER_ROUND = 10; // 10 жизней
+const MAX_ERRORS_PER_ROUND = 10;
 
 const ratingState = {
   current: 1240,
@@ -85,8 +85,6 @@ const recentMatches = [
   }
 ];
 
-/* --------- состояние локальной игры --------- */
-
 let activeGameTimer = null;
 let preStartTimer = null;
 let activeGameState = null;
@@ -100,9 +98,6 @@ function triggerKeyHaptics() {
       const h = window.Telegram.WebApp.HapticFeedback;
       if (typeof h.impactOccurred === "function") {
         h.impactOccurred("light");
-      }
-      if (typeof h.notificationOccurred === "function") {
-        h.notificationOccurred("success");
       }
     }
     if (window.navigator && typeof navigator.vibrate === "function") {
@@ -123,7 +118,7 @@ function showBottomNav() {
   if (nav) nav.classList.remove("nav-buttons-hidden");
 }
 
-/* --------- НОРМАЛИЗАЦИЯ СИМВОЛОВ: регистр + Ё --------- */
+/* --------- НОРМАЛИЗАЦИЯ СИМВОЛОВ --------- */
 
 function normalizeChar(ch) {
   if (!ch) return "";
@@ -183,7 +178,7 @@ function initTelegram() {
   try {
     tg.requestFullscreen?.();
     tg.setHeaderColor?.("bg_color");
-    tg.setHeaderColor?.("#00000000"); // прозрачная шапка
+    tg.setHeaderColor?.("#00000000");
     tg.setBackgroundColor?.("#05060a");
   } catch (e) {}
 
@@ -939,7 +934,7 @@ function attachFundHandlers() {
   }
 }
 
-/* ---------- ГЕНЕРАЦИЯ ТЕКСТА (без цифр и примеров) ---------- */
+/* ---------- ГЕНЕРАЦИЯ ТЕКСТА (только текст, без цифр/примеров) ---------- */
 
 function generateLine(difficulty, roundIndex) {
   const baseTextsEasy = [
@@ -1015,7 +1010,7 @@ function startTrainingGame(difficulty) {
     hard: 55
   };
   const targetTimeSec = BOT_TARGET_TIME[difficulty] || 90;
-  const botSpeed = totalChars / (targetTimeSec * 1000); // chars/ms
+  const botSpeed = totalChars / (targetTimeSec * 1000);
 
   activeGameState = {
     mode: "training",
@@ -1145,6 +1140,16 @@ function renderGameScreen() {
           <button class="key-btn key-btn-small" data-key=".">.</button>
         </div>
       </div>
+
+      <div class="matrix-island">
+        <div class="matrix-stream">
+          <span class="matrix-column">01ЯЮZФГЖЛМНР</span>
+          <span class="matrix-column">10МИРАТСЕТИ</span>
+          <span class="matrix-column">01QWЕРТЙЦУК</span>
+          <span class="matrix-column">10ABCDЯЮЁЕЫ</span>
+          <span class="matrix-column">01ПРИЗЫRACE</span>
+        </div>
+      </div>
     </div>
 
     <div class="game-summary" id="game-summary" style="display:none;"></div>
@@ -1155,7 +1160,7 @@ function renderGameScreen() {
   `;
 
   updateRoundUI();
-  updateGameLinesUI(0);     // текст подготовлен, но скрыт классом loading
+  updateGameLinesUI(0);
   updateGameProgressUI(0, 0);
   updateLivesUI();
 
@@ -1245,6 +1250,17 @@ function updateLivesUI() {
   });
 }
 
+/* лёгкая анимация ошибки */
+
+function triggerErrorFlash() {
+  const card = document.querySelector(".glass-card");
+  if (!card) return;
+  card.classList.add("error-flash");
+  setTimeout(() => {
+    card.classList.remove("error-flash");
+  }, 180);
+}
+
 /* countdown + стартовый флэш */
 
 function triggerStartFlash() {
@@ -1277,7 +1293,7 @@ function startPreCountdown() {
       clearInterval(preStartTimer);
       preStartTimer = null;
       cdEl.textContent = "";
-      lines.classList.remove("loading"); // показываем текст после START
+      lines.classList.remove("loading"); // текст появляется только после START
       triggerStartFlash();
       inputEnabled = true;
       startStatsTimer();
@@ -1350,18 +1366,7 @@ function attachGameHandlers() {
   }
 }
 
-/* лёгкая анимация ошибки */
-
-function triggerErrorFlash() {
-  const card = document.querySelector(".glass-card");
-  if (!card) return;
-  card.classList.add("error-flash");
-  setTimeout(() => {
-    card.classList.remove("error-flash");
-  }, 180);
-}
-
-/* логика ввода (через нашу клавиатуру) */
+/* логика ввода */
 
 function handleGameInput(value, lastKey) {
   if (!activeGameState || activeGameState.finished) return;
@@ -1371,13 +1376,8 @@ function handleGameInput(value, lastKey) {
 
   activeGameState.typedCharsTotal += 1;
 
-  if (diffLen > 1) {
-    return;
-  }
-
-  if (diffLen <= 0) {
-    return;
-  }
+  if (diffLen > 1) return;
+  if (diffLen <= 0) return;
 
   const idx = value.length - 1;
   const target = getCurrentLine();
@@ -1465,7 +1465,7 @@ function advanceLine() {
   updateGameProgressUI(ratios.player, ratios.bot);
 }
 
-/* учёт прогресса игрока по матчу */
+/* учёт прогресса */
 
 function getPlayerCorrectChars() {
   if (!activeGameState) return 0;
@@ -1482,7 +1482,7 @@ function getProgressRatios() {
   return { player: playerRatio, bot: botRatio };
 }
 
-/* обновление статов + прогресса бота */
+/* обновление статов + бота */
 
 function updateGameStatsUI() {
   if (!activeGameState || !activeGameState.startedAt) return;
@@ -1540,7 +1540,7 @@ function updateGameStatsUI() {
   }
 }
 
-/* пауза между раундами с отсчётом */
+/* пауза между раундами */
 
 function startInterRoundPause() {
   const lines = document.querySelector(".game-lines");
@@ -1550,7 +1550,7 @@ function startInterRoundPause() {
   activeGameState.inInterRoundPause = true;
   activeGameState.pauseStartedAt = Date.now();
   inputEnabled = false;
-  lines.classList.add("loading"); // на паузе текст прячем
+  lines.classList.add("loading");
 
   let left = INTER_ROUND_COUNTDOWN_SEC;
   cdEl.textContent = `Раунд ${activeGameState.roundIndex + 1} через ${left}`;
@@ -1575,7 +1575,7 @@ function startInterRoundPause() {
       }
       activeGameState.inInterRoundPause = false;
 
-      lines.classList.remove("loading"); // показываем строки нового раунда
+      lines.classList.remove("loading");
       triggerStartFlash();
       inputEnabled = true;
       updateGameLinesUI(0);
