@@ -1039,25 +1039,48 @@ function startTrainingGame(difficulty) {
   startPreCountdown();
 }
 
-/* MATRIX RAIN */
+/* ---------------- MATRIX RAIN (обновлено) ---------------- */
 
 function initMatrixRain() {
   const island = document.getElementById("matrix-island");
   if (!island) return;
 
   island.innerHTML = "";
-  const chars = "0123456789йцукенгшщзхъфывапролджэячсмитьбю";
 
-  const count = 50;
-  for (let i = 0; i < count; i++) {
+  const symbols = "0123456789йцукенгшщзхъфывапролджэячсмитьбю";
+
+  function spawnSymbol() {
+    if (!document.body.classList.contains("in-game")) return;
+    const width = island.clientWidth;
+
     const span = document.createElement("span");
     span.className = "matrix-char";
-    span.textContent = chars[Math.floor(Math.random() * chars.length)];
-    span.style.left = Math.random() * 100 + "%";
-    span.style.animationDuration = 2 + Math.random() * 3 + "s";
-    span.style.animationDelay = Math.random() * 3 + "s";
+    span.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+
+    const x = Math.random() * width;
+    span.style.left = x + "px";
+
+    const duration = 1.5 + Math.random() * 2.5;
+    span.style.animationDuration = duration + "s";
+
+    const delay = Math.random() * 1.5;
+    span.style.animationDelay = delay + "s";
+
     island.appendChild(span);
+
+    setTimeout(() => {
+      if (span.parentNode) span.parentNode.removeChild(span);
+    }, (duration + delay) * 1000);
   }
+
+  function loop() {
+    if (!document.body.classList.contains("in-game")) return;
+    spawnSymbol();
+    const next = 80 + Math.random() * 100;
+    setTimeout(loop, next);
+  }
+
+  loop();
 }
 
 /* GAME SCREEN */
@@ -1383,7 +1406,7 @@ function attachGameHandlers() {
       const prev = activeGameState.lastInput || "";
       const next = prev + key;
 
-      handleGameInput(next, key);
+      handleGameInput(next);
     });
   }
 }
