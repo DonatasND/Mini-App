@@ -90,7 +90,7 @@ let preStartTimer = null;
 let activeGameState = null;
 let inputEnabled = false;
 
-/* --------- HAPTIC / ВИБРАЦИЯ --------- */
+/* HAPTIC */
 
 function triggerKeyHaptics() {
   try {
@@ -106,7 +106,7 @@ function triggerKeyHaptics() {
   } catch (e) {}
 }
 
-/* --------- навигация снизу --------- */
+/* NAV */
 
 function hideBottomNav() {
   const nav = document.querySelector(".bottom-nav");
@@ -118,7 +118,7 @@ function showBottomNav() {
   if (nav) nav.classList.remove("nav-buttons-hidden");
 }
 
-/* --------- НОРМАЛИЗАЦИЯ СИМВОЛОВ --------- */
+/* НОРМАЛИЗАЦИЯ */
 
 function normalizeChar(ch) {
   if (!ch) return "";
@@ -142,7 +142,7 @@ function isSameText(a, b) {
   return normalizeText(a) === normalizeText(b);
 }
 
-/* --------- init --------- */
+/* INIT */
 
 document.addEventListener("DOMContentLoaded", () => {
   initTelegram();
@@ -240,7 +240,7 @@ function setActiveNav(section) {
   tg?.MainButton?.hide();
 }
 
-/* ---------- утилиты для игры ---------- */
+/* игра — стоп */
 
 function stopActiveGame() {
   if (activeGameTimer) {
@@ -256,7 +256,7 @@ function stopActiveGame() {
   document.body.classList.remove("in-game");
 }
 
-/* ---------- Общий рендер ---------- */
+/* РЕНДЕР */
 
 function renderSection(section) {
   const card = document.getElementById("main-card");
@@ -283,7 +283,7 @@ function renderSection(section) {
   attachFundHandlers();
 }
 
-/* ---------- Профиль ---------- */
+/* Профиль */
 
 function renderProfile() {
   const card = document.getElementById("main-card");
@@ -435,7 +435,7 @@ function renderProfile() {
   }
 }
 
-/* ---------- BP "островок" ---------- */
+/* BP */
 
 function renderBattlePassIsland() {
   const pct = Math.max(0, Math.min(100, playerState.bpProgressPct));
@@ -455,7 +455,7 @@ function renderBattlePassIsland() {
   `;
 }
 
-/* ---------- Главная ---------- */
+/* Главная */
 
 function renderHomeContent() {
   return `
@@ -495,7 +495,7 @@ function renderHomeContent() {
   `;
 }
 
-/* ---------- Тренировочное меню ---------- */
+/* Меню тренировки */
 
 function renderTrainingMenu() {
   const card = document.getElementById("main-card");
@@ -676,7 +676,7 @@ function attachTrainingMenuHandlers() {
   }
 }
 
-/* ---------- Челленджи ---------- */
+/* Челленджи */
 
 function renderChallengesContent() {
   const daily = [
@@ -768,7 +768,7 @@ function renderChallengesContent() {
   `;
 }
 
-/* ---------- Призовой фонд ---------- */
+/* Призовой фонд */
 
 function renderFundContent() {
   const top3 = monthlyTop10.slice(0, 3);
@@ -836,7 +836,7 @@ function renderFundContent() {
   `;
 }
 
-/* ---------- Handlers обычных экранов ---------- */
+/* Handlers обычных экранов */
 
 function attachHomeHandlers() {
   if (currentSection !== "home") return;
@@ -934,7 +934,7 @@ function attachFundHandlers() {
   }
 }
 
-/* ---------- ГЕНЕРАЦИЯ ТЕКСТА (только текст, без цифр/примеров) ---------- */
+/* ГЕНЕРАЦИЯ ТЕКСТОВ */
 
 function generateLine(difficulty, roundIndex) {
   const baseTextsEasy = [
@@ -996,7 +996,7 @@ function generateRoundsForTraining(difficulty) {
   return rounds;
 }
 
-/* ---------- ЛОКАЛЬНАЯ ТРЕНИРОВКА ---------- */
+/* ТРЕНИРОВОЧНЫЙ МАТЧ */
 
 function startTrainingGame(difficulty) {
   stopActiveGame();
@@ -1038,6 +1038,29 @@ function startTrainingGame(difficulty) {
   renderGameScreen();
   startPreCountdown();
 }
+
+/* MATRIX RAIN */
+
+function initMatrixRain() {
+  const island = document.getElementById("matrix-island");
+  if (!island) return;
+
+  island.innerHTML = "";
+  const chars = "0123456789йцукенгшщзхъфывапролджэячсмитьбю";
+
+  const count = 50;
+  for (let i = 0; i < count; i++) {
+    const span = document.createElement("span");
+    span.className = "matrix-char";
+    span.textContent = chars[Math.floor(Math.random() * chars.length)];
+    span.style.left = Math.random() * 100 + "%";
+    span.style.animationDuration = 2 + Math.random() * 3 + "s";
+    span.style.animationDelay = Math.random() * 3 + "s";
+    island.appendChild(span);
+  }
+}
+
+/* Рендер экрана игры */
 
 function renderGameScreen() {
   const card = document.getElementById("main-card");
@@ -1092,62 +1115,55 @@ function renderGameScreen() {
       <div class="game-countdown" id="game-countdown"></div>
     </div>
 
-    <div class="game-keyboard" id="game-keyboard">
-      <div class="keyboard-plate">
-        <div class="key-row">
-          <button class="key-btn" data-key="й">й</button>
-          <button class="key-btn" data-key="ц">ц</button>
-          <button class="key-btn" data-key="у">у</button>
-          <button class="key-btn" data-key="к">к</button>
-          <button class="key-btn" data-key="е">е</button>
-          <button class="key-btn" data-key="н">н</button>
-          <button class="key-btn" data-key="г">г</button>
-          <button class="key-btn" data-key="ш">ш</button>
-          <button class="key-btn" data-key="щ">щ</button>
-          <button class="key-btn" data-key="з">з</button>
-          <button class="key-btn" data-key="х">х</button>
-          <button class="key-btn" data-key="ъ">ъ</button>
-        </div>
-        <div class="key-row">
-          <button class="key-btn" data-key="ф">ф</button>
-          <button class="key-btn" data-key="ы">ы</button>
-          <button class="key-btn" data-key="в">в</button>
-          <button class="key-btn" data-key="а">а</button>
-          <button class="key-btn" data-key="п">п</button>
-          <button class="key-btn" data-key="р">р</button>
-          <button class="key-btn" data-key="о">о</button>
-          <button class="key-btn" data-key="л">л</button>
-          <button class="key-btn" data-key="д">д</button>
-          <button class="key-btn" data-key="ж">ж</button>
-          <button class="key-btn" data-key="э">э</button>
-        </div>
-        <div class="key-row key-row-third">
-          <div class="key-spacer"></div>
-          <button class="key-btn" data-key="я">я</button>
-          <button class="key-btn" data-key="ч">ч</button>
-          <button class="key-btn" data-key="с">с</button>
-          <button class="key-btn" data-key="м">м</button>
-          <button class="key-btn" data-key="и">и</button>
-          <button class="key-btn" data-key="т">т</button>
-          <button class="key-btn" data-key="ь">ь</button>
-          <button class="key-btn" data-key="б">б</button>
-          <button class="key-btn" data-key="ю">ю</button>
-          <div class="key-spacer"></div>
-        </div>
-        <div class="key-row key-row-space">
-          <button class="key-btn key-btn-small" data-key=",">,</button>
-          <button class="key-btn key-btn-wide" data-key=" ">Пробел</button>
-          <button class="key-btn key-btn-small" data-key=".">.</button>
-        </div>
-      </div>
-
-      <div class="matrix-island">
-        <div class="matrix-stream">
-          <span class="matrix-column">01ЯЮZФГЖЛМНР</span>
-          <span class="matrix-column">10МИРАТСЕТИ</span>
-          <span class="matrix-column">01QWЕРТЙЦУК</span>
-          <span class="matrix-column">10ABCDЯЮЁЕЫ</span>
-          <span class="matrix-column">01ПРИЗЫRACE</span>
+    <div class="game-keyboard-wrapper">
+      <div class="matrix-island" id="matrix-island"></div>
+      <div class="game-keyboard" id="game-keyboard">
+        <div class="keyboard-plate" id="keyboard-plate">
+          <div class="key-row">
+            <button class="key-btn" data-key="й">й</button>
+            <button class="key-btn" data-key="ц">ц</button>
+            <button class="key-btn" data-key="у">у</button>
+            <button class="key-btn" data-key="к">к</button>
+            <button class="key-btn" data-key="е">е</button>
+            <button class="key-btn" data-key="н">н</button>
+            <button class="key-btn" data-key="г">г</button>
+            <button class="key-btn" data-key="ш">ш</button>
+            <button class="key-btn" data-key="щ">щ</button>
+            <button class="key-btn" data-key="з">з</button>
+            <button class="key-btn" data-key="х">х</button>
+            <button class="key-btn" data-key="ъ">ъ</button>
+          </div>
+          <div class="key-row">
+            <button class="key-btn" data-key="ф">ф</button>
+            <button class="key-btn" data-key="ы">ы</button>
+            <button class="key-btn" data-key="в">в</button>
+            <button class="key-btn" data-key="а">а</button>
+            <button class="key-btn" data-key="п">п</button>
+            <button class="key-btn" data-key="р">р</button>
+            <button class="key-btn" data-key="о">о</button>
+            <button class="key-btn" data-key="л">л</button>
+            <button class="key-btn" data-key="д">д</button>
+            <button class="key-btn" data-key="ж">ж</button>
+            <button class="key-btn" data-key="э">э</button>
+          </div>
+          <div class="key-row key-row-third">
+            <div class="key-spacer"></div>
+            <button class="key-btn" data-key="я">я</button>
+            <button class="key-btn" data-key="ч">ч</button>
+            <button class="key-btn" data-key="с">с</button>
+            <button class="key-btn" data-key="м">м</button>
+            <button class="key-btn" data-key="и">и</button>
+            <button class="key-btn" data-key="т">т</button>
+            <button class="key-btn" data-key="ь">ь</button>
+            <button class="key-btn" data-key="б">б</button>
+            <button class="key-btn" data-key="ю">ю</button>
+            <div class="key-spacer"></div>
+          </div>
+          <div class="key-row key-row-space">
+            <button class="key-btn key-btn-small" data-key=",">,</button>
+            <button class="key-btn key-btn-wide" data-key=" ">Пробел</button>
+            <button class="key-btn key-btn-small" data-key=".">.</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1163,9 +1179,11 @@ function renderGameScreen() {
   updateGameLinesUI(0);
   updateGameProgressUI(0, 0);
   updateLivesUI();
-
+  initMatrixRain();
   attachGameHandlers();
 }
+
+/* текущие строки */
 
 function getCurrentLine() {
   return activeGameState.rounds[activeGameState.roundIndex][activeGameState.lineIndex];
@@ -1185,7 +1203,7 @@ function getNextLine() {
   return "";
 }
 
-/* вывод строк с "бегущей строкой" */
+/* UI строк */
 
 function updateGameLinesUI(typedLength) {
   if (!activeGameState) return;
@@ -1250,8 +1268,6 @@ function updateLivesUI() {
   });
 }
 
-/* лёгкая анимация ошибки */
-
 function triggerErrorFlash() {
   const card = document.querySelector(".glass-card");
   if (!card) return;
@@ -1261,7 +1277,7 @@ function triggerErrorFlash() {
   }, 180);
 }
 
-/* countdown + стартовый флэш */
+/* стартовый флэш */
 
 function triggerStartFlash() {
   const lines = document.querySelector(".game-lines");
@@ -1271,6 +1287,8 @@ function triggerStartFlash() {
     lines.classList.remove("start-flash");
   }, 200);
 }
+
+/* COUNTDOWN */
 
 function startPreCountdown() {
   const cdEl = document.getElementById("game-countdown");
@@ -1293,7 +1311,7 @@ function startPreCountdown() {
       clearInterval(preStartTimer);
       preStartTimer = null;
       cdEl.textContent = "";
-      lines.classList.remove("loading"); // текст появляется только после START
+      lines.classList.remove("loading");
       triggerStartFlash();
       inputEnabled = true;
       startStatsTimer();
@@ -1310,6 +1328,8 @@ function startStatsTimer() {
   activeGameState.inInterRoundPause = false;
   activeGameTimer = setInterval(updateGameStatsUI, 200);
 }
+
+/* обработчики игры */
 
 function attachGameHandlers() {
   if (!activeGameState) return;
@@ -1366,9 +1386,9 @@ function attachGameHandlers() {
   }
 }
 
-/* логика ввода */
+/* ВВОД */
 
-function handleGameInput(value, lastKey) {
+function handleGameInput(value) {
   if (!activeGameState || activeGameState.finished) return;
 
   const prev = activeGameState.lastInput || "";
@@ -1427,7 +1447,7 @@ function handleGameInput(value, lastKey) {
   }
 }
 
-/* переход по строкам и раундам */
+/* переход по строкам/раундам */
 
 function advanceLine() {
   if (!activeGameState) return;
@@ -1465,7 +1485,7 @@ function advanceLine() {
   updateGameProgressUI(ratios.player, ratios.bot);
 }
 
-/* учёт прогресса */
+/* прогресс */
 
 function getPlayerCorrectChars() {
   if (!activeGameState) return 0;
@@ -1482,7 +1502,7 @@ function getProgressRatios() {
   return { player: playerRatio, bot: botRatio };
 }
 
-/* обновление статов + бота */
+/* статы + бот */
 
 function updateGameStatsUI() {
   if (!activeGameState || !activeGameState.startedAt) return;
@@ -1600,13 +1620,13 @@ function finishGame(success, reason) {
 
   inputEnabled = false;
 
-  const keyboard = document.getElementById("game-keyboard");
-  if (keyboard) {
-    keyboard.classList.add("keyboard-hide");
-    keyboard.addEventListener(
+  const keyboardPlate = document.getElementById("keyboard-plate");
+  if (keyboardPlate) {
+    keyboardPlate.classList.add("keyboard-hide");
+    keyboardPlate.addEventListener(
       "animationend",
       () => {
-        keyboard.style.display = "none";
+        keyboardPlate.style.display = "none";
       },
       { once: true }
     );
