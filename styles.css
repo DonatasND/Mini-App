@@ -34,7 +34,7 @@ button {
   border:none;
 }
 
-/* Загрузочный экран */
+/* ---------- ЗАГРУЗОЧНЫЙ ЭКРАН ---------- */
 
 .splash-screen {
   position:fixed;
@@ -60,7 +60,7 @@ button {
   object-fit:cover;
 }
 
-/* APP */
+/* ---------- APP LAYOUT ---------- */
 
 .app {
   min-height:100vh;
@@ -192,7 +192,7 @@ body.in-game .app {
     0 8px 16px rgba(0,0,0,0.7);
 }
 
-/* MAIN */
+/* MAIN CARD */
 
 .main {
   flex:1;
@@ -228,7 +228,7 @@ body.in-game .app {
   padding-bottom:110px;
 }
 
-/* флэш ошибки */
+/* FLASH ERROR */
 
 .error-flash {
   box-shadow:
@@ -238,7 +238,7 @@ body.in-game .app {
   border-color:rgba(255,120,120,0.9);
 }
 
-/* BP островок */
+/* BATTLE PASS */
 
 .bp-island {
   border-radius:18px;
@@ -297,7 +297,7 @@ body.in-game .app {
   opacity:.75;
 }
 
-/* контентные блоки */
+/* CONTENT BLOCKS */
 
 .content-block {
   display:flex;
@@ -313,7 +313,7 @@ body.in-game .app {
   opacity:.75;
 }
 
-/* режимы на главной */
+/* MODES ON HOME */
 
 .mode-grid-two {
   display:grid;
@@ -368,7 +368,7 @@ body.in-game .app {
   background:rgba(255,255,255,0.08);
 }
 
-/* списки */
+/* LISTS */
 
 .list-rows {
   display:flex;
@@ -408,7 +408,7 @@ body.in-game .app {
   background:rgba(255,255,255,0.06);
 }
 
-/* кнопки */
+/* BUTTONS */
 
 .btn-secondary {
   margin-top:6px;
@@ -428,7 +428,7 @@ body.in-game .app {
   opacity:.85;
 }
 
-/* нижняя навигация */
+/* BOTTOM NAV */
 
 .bottom-nav {
   position:fixed;
@@ -510,7 +510,7 @@ body.in-game .app {
     0 10px 22px rgba(0,0,0,0.9);
 }
 
-/* пьедестал */
+/* PODIUM */
 
 .podium {
   display:flex;
@@ -555,7 +555,7 @@ body.in-game .app {
 .podium-2 { height:64px; }
 .podium-3 { height:56px; }
 
-/* Профиль */
+/* PROFILE */
 
 .profile-section-label {
   font-size:11px;
@@ -745,7 +745,7 @@ body.in-game .app {
   background:linear-gradient(90deg,#7ecaff,#50ffce);
 }
 
-/* жизни */
+/* LIVES */
 
 .game-lives {
   margin-top:6px;
@@ -782,7 +782,7 @@ body.in-game .app {
   text-shadow:none;
 }
 
-/* поле текста */
+/* TEXT FIELD */
 
 .game-lines {
   margin-top:10px;
@@ -829,7 +829,7 @@ body.in-game .app {
   font-size:16px;
 }
 
-/* бегущая строка */
+/* БЕГУЩАЯ СТРОКА */
 
 .game-scroll-wrapper {
   display:flex;
@@ -872,7 +872,7 @@ body.in-game .app {
   text-shadow:0 0 6px rgba(126,202,255,0.9);
 }
 
-/* countdown */
+/* COUNTDOWN */
 
 .game-countdown {
   position:absolute;
@@ -886,7 +886,7 @@ body.in-game .app {
   text-shadow:0 0 18px rgba(0,0,0,0.9);
 }
 
-/* KEYBOARD + MATRIX */
+/* ---------- KEYBOARD + MATRIX ---------- */
 
 .game-keyboard-wrapper {
   position:fixed;
@@ -899,12 +899,14 @@ body.in-game .app {
   pointer-events:none;
 }
 
+/* Матричный островок — начинается под клавиатурой и тянется до низа */
+
 .matrix-island {
   position:absolute;
   left:0;
   right:0;
   bottom:0;
-  height:26vh;
+  height:24vh;
   border-radius:40px 40px 0 0;
   background:radial-gradient(circle at 0% 0%,rgba(0,255,128,0.22),rgba(5,10,8,0.98));
   border:1px solid rgba(120,255,170,0.55);
@@ -941,21 +943,25 @@ body.in-game .matrix-island {
   100% { transform:translateY(120%); opacity:0; }
 }
 
+/* Клавиатура поднята над островком */
+
 .game-keyboard {
   position:absolute;
   left:0;
   right:0;
-  bottom:12px;
+  bottom:24vh;
   padding:0 10px 4px;
   pointer-events:auto;
 }
+
+/* ПЛАСТИНА КЛАВИАТУРЫ — ТЁМНАЯ, НЕ ЗЕЛЁНАЯ */
 
 .keyboard-plate {
   width:100%;
   border-radius:18px 18px 10px 10px;
   padding:6px 4px 10px;
-  background:rgba(10,12,12,0.98);
-  border:1px solid rgba(120,255,170,0.25);
+  background:rgba(10,12,20,0.98);
+  border:1px solid rgba(255,255,255,0.18);
   backdrop-filter:blur(18px) saturate(180%);
   -webkit-backdrop-filter:blur(18px) saturate(180%);
   box-shadow:
@@ -963,7 +969,7 @@ body.in-game .matrix-island {
     0 0 10px rgba(0,0,0,0.5);
 }
 
-/* “всасывание” только для клавиатурной плиты */
+/* анимация всасывания только для самой клавиатуры */
 
 .keyboard-plate.keyboard-hide {
   animation:keyboard-suck-out .5s ease forwards;
@@ -981,7 +987,7 @@ body.in-game .matrix-island {
   }
 }
 
-/* строки клавиатуры */
+/* РЯДЫ КЛАВИШ */
 
 .key-row {
   display:flex;
@@ -1007,22 +1013,20 @@ body.in-game .matrix-island {
   justify-content:space-between;
 }
 
-/* сами клавиши — матричный стиль */
+/* КЛАВИШИ — ОБРАТНО ТЁМНЫЕ, НЕ МАТРИЧНЫЕ */
 
 .key-btn {
   flex:1 1 0;
   min-width:0;
   padding:9px 4px;
   border-radius:9px;
-  border:1px solid rgba(120,255,170,0.35);
-  background:rgba(5,15,10,0.96);
+  border:1px solid rgba(255,255,255,0.22);
+  background:rgba(18,20,30,0.98);
   font-size:20px;
-  color:#7dff92;
+  color:#e5eeff;
   cursor:pointer;
-  box-shadow:
-    0 0 7px rgba(0,255,128,0.5),
-    0 1px 3px rgba(0,0,0,0.8);
-  text-shadow:0 0 5px rgba(0,255,128,0.9);
+  box-shadow:0 1px 3px rgba(0,0,0,0.85);
+  text-shadow:none;
 }
 
 .key-btn-small {
@@ -1040,13 +1044,10 @@ body.in-game .matrix-island {
 .key-btn:active {
   transform:scale(.97);
   opacity:.9;
-  background:rgba(12,26,18,0.98);
-  box-shadow:
-    inset 0 1px 2px rgba(0,0,0,0.7),
-    0 0 8px rgba(0,255,128,0.6);
+  background:rgba(25,28,40,0.98);
 }
 
-/* summary + кнопки после матча */
+/* SUMMARY + BUTTONS */
 
 .game-summary {
   margin-top:12px;
@@ -1101,7 +1102,7 @@ body.in-game .matrix-island {
   opacity:.9;
 }
 
-/* Адаптив */
+/* ADAPTIVE */
 
 @media (max-width:360px) {
   .app {
@@ -1113,7 +1114,7 @@ body.in-game .matrix-island {
   .glass-card {padding:14px 12px 16px;}
   .glass-card.game-mode {padding-bottom:100px;}
   .game-keyboard {
-    bottom:8px;
+    bottom:26vh;
     padding:0 8px 4px;
   }
   .key-btn {font-size:18px;}
@@ -1121,6 +1122,6 @@ body.in-game .matrix-island {
 
 @media (min-width:420px) {
   .game-keyboard {
-    bottom:14px;
+    bottom:22vh;
   }
 }
