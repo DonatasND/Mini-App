@@ -118,7 +118,7 @@ function showBottomNav() {
   if (nav) nav.classList.remove("nav-buttons-hidden");
 }
 
-/* НОРМАЛИЗАЦИЯ */
+/* NORMALIZATION */
 
 function normalizeChar(ch) {
   if (!ch) return "";
@@ -240,7 +240,7 @@ function setActiveNav(section) {
   tg?.MainButton?.hide();
 }
 
-/* игра — стоп */
+/* STOP GAME */
 
 function stopActiveGame() {
   if (activeGameTimer) {
@@ -256,7 +256,7 @@ function stopActiveGame() {
   document.body.classList.remove("in-game");
 }
 
-/* РЕНДЕР */
+/* SECTION RENDERING */
 
 function renderSection(section) {
   const card = document.getElementById("main-card");
@@ -283,7 +283,7 @@ function renderSection(section) {
   attachFundHandlers();
 }
 
-/* Профиль */
+/* PROFILE */
 
 function renderProfile() {
   const card = document.getElementById("main-card");
@@ -435,7 +435,7 @@ function renderProfile() {
   }
 }
 
-/* BP */
+/* BATTLE PASS */
 
 function renderBattlePassIsland() {
   const pct = Math.max(0, Math.min(100, playerState.bpProgressPct));
@@ -455,7 +455,7 @@ function renderBattlePassIsland() {
   `;
 }
 
-/* Главная */
+/* HOME */
 
 function renderHomeContent() {
   return `
@@ -495,7 +495,7 @@ function renderHomeContent() {
   `;
 }
 
-/* Меню тренировки */
+/* TRAINING MENU */
 
 function renderTrainingMenu() {
   const card = document.getElementById("main-card");
@@ -676,7 +676,7 @@ function attachTrainingMenuHandlers() {
   }
 }
 
-/* Челленджи */
+/* CHALLENGES */
 
 function renderChallengesContent() {
   const daily = [
@@ -768,7 +768,7 @@ function renderChallengesContent() {
   `;
 }
 
-/* Призовой фонд */
+/* FUND */
 
 function renderFundContent() {
   const top3 = monthlyTop10.slice(0, 3);
@@ -836,7 +836,7 @@ function renderFundContent() {
   `;
 }
 
-/* Handlers обычных экранов */
+/* HANDLERS FOR SIMPLE SCREENS */
 
 function attachHomeHandlers() {
   if (currentSection !== "home") return;
@@ -934,7 +934,7 @@ function attachFundHandlers() {
   }
 }
 
-/* ГЕНЕРАЦИЯ ТЕКСТОВ */
+/* TEXT GENERATION */
 
 function generateLine(difficulty, roundIndex) {
   const baseTextsEasy = [
@@ -996,7 +996,7 @@ function generateRoundsForTraining(difficulty) {
   return rounds;
 }
 
-/* ТРЕНИРОВОЧНЫЙ МАТЧ */
+/* START TRAINING GAME */
 
 function startTrainingGame(difficulty) {
   stopActiveGame();
@@ -1060,7 +1060,7 @@ function initMatrixRain() {
   }
 }
 
-/* Рендер экрана игры */
+/* GAME SCREEN */
 
 function renderGameScreen() {
   const card = document.getElementById("main-card");
@@ -1183,7 +1183,7 @@ function renderGameScreen() {
   attachGameHandlers();
 }
 
-/* текущие строки */
+/* CURRENT LINES */
 
 function getCurrentLine() {
   return activeGameState.rounds[activeGameState.roundIndex][activeGameState.lineIndex];
@@ -1203,7 +1203,7 @@ function getNextLine() {
   return "";
 }
 
-/* UI строк */
+/* LINES UI */
 
 function updateGameLinesUI(typedLength) {
   if (!activeGameState) return;
@@ -1277,7 +1277,7 @@ function triggerErrorFlash() {
   }, 180);
 }
 
-/* стартовый флэш */
+/* START FLASH */
 
 function triggerStartFlash() {
   const lines = document.querySelector(".game-lines");
@@ -1288,7 +1288,7 @@ function triggerStartFlash() {
   }, 200);
 }
 
-/* COUNTDOWN */
+/* PRESTART COUNTDOWN */
 
 function startPreCountdown() {
   const cdEl = document.getElementById("game-countdown");
@@ -1320,6 +1320,8 @@ function startPreCountdown() {
   }, 1000);
 }
 
+/* STATS TIMER */
+
 function startStatsTimer() {
   if (!activeGameState) return;
   activeGameState.startedAt = Date.now();
@@ -1329,7 +1331,7 @@ function startStatsTimer() {
   activeGameTimer = setInterval(updateGameStatsUI, 200);
 }
 
-/* обработчики игры */
+/* GAME HANDLERS */
 
 function attachGameHandlers() {
   if (!activeGameState) return;
@@ -1386,7 +1388,7 @@ function attachGameHandlers() {
   }
 }
 
-/* ВВОД */
+/* INPUT */
 
 function handleGameInput(value) {
   if (!activeGameState || activeGameState.finished) return;
@@ -1447,7 +1449,7 @@ function handleGameInput(value) {
   }
 }
 
-/* переход по строкам/раундам */
+/* LINE / ROUND PROGRESSION */
 
 function advanceLine() {
   if (!activeGameState) return;
@@ -1485,7 +1487,7 @@ function advanceLine() {
   updateGameProgressUI(ratios.player, ratios.bot);
 }
 
-/* прогресс */
+/* PROGRESS */
 
 function getPlayerCorrectChars() {
   if (!activeGameState) return 0;
@@ -1502,7 +1504,7 @@ function getProgressRatios() {
   return { player: playerRatio, bot: botRatio };
 }
 
-/* статы + бот */
+/* STATS + BOT */
 
 function updateGameStatsUI() {
   if (!activeGameState || !activeGameState.startedAt) return;
@@ -1560,7 +1562,7 @@ function updateGameStatsUI() {
   }
 }
 
-/* пауза между раундами */
+/* INTER-ROUND PAUSE */
 
 function startInterRoundPause() {
   const lines = document.querySelector(".game-lines");
@@ -1603,7 +1605,7 @@ function startInterRoundPause() {
   }, 1000);
 }
 
-/* завершение матча */
+/* FINISH GAME */
 
 function finishGame(success, reason) {
   if (!activeGameState || activeGameState.finished) return;
