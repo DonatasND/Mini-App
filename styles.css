@@ -46,6 +46,7 @@ button {
   z-index:999;
   opacity:1;
   transition:opacity .5s ease;
+  overflow:hidden;
 }
 
 .splash-screen.splash-hide {
@@ -54,8 +55,9 @@ button {
 }
 
 .splash-img {
-  max-width:100%;
-  max-height:100%;
+  width:100%;
+  height:100%;
+  object-fit:cover; /* картинка тянется на весь экран без полос сверху/снизу */
 }
 
 /* базовая высота под навигацию + фиксированный отступ от шапки телеги */
@@ -221,7 +223,7 @@ body.in-game .app {
   display:flex;
   flex-direction:column;
   gap:12px;
-  transition:box-shadow .15s ease,border-color .15s ease;
+  transition:box-shadow .15s ease,border-color .15s.ease;
   max-width:100%;
   overflow:hidden;
 }
@@ -431,7 +433,7 @@ body.in-game .app {
   opacity:.85;
 }
 
-/* BOTTOM NAV "островок" — без фона за кнопками */
+/* BOTTOM NAV */
 
 .bottom-nav {
   position:fixed;
@@ -479,7 +481,7 @@ body.in-game .app {
   cursor:pointer;
   color:rgba(234,242,255,0.96);
   text-shadow:0 0 4px rgba(0,0,0,0.6);
-  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease,opacity .15s ease;
+  transition:transform .15s ease,box-shadow .15s.ease,border-color .15s.ease,opacity .15s ease;
   outline:none;
 }
 
@@ -806,16 +808,16 @@ body.in-game .app {
   max-width:100%;
 }
 
+/* во время отсчёта и пауз текст прячем */
+.game-lines.loading .game-line {
+  visibility:hidden;
+}
+
 .game-line {
   min-height:0;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-}
-
-/* во время отсчёта и пауз текст прячем */
-.game-lines.loading .game-line {
-  visibility:hidden;
 }
 
 .game-line-prev {
@@ -892,23 +894,21 @@ body.in-game .app {
   text-shadow:0 0 18px rgba(0,0,0,0.9);
 }
 
-/* экранная клавиатура — в самом низу, на месте навигации */
+/* экранная клавиатура — немного приподнята над низом */
 
 .game-keyboard {
   position:fixed;
   left:50%;
-  bottom:0;
+  bottom:18px; /* приподняли, под ней будет матричный островок */
   transform:translateX(-50%) scale(1);
   transform-origin:50% 100%;
   width:100%;
   max-width:480px;
-  padding:4px 10px 8px;
+  padding:4px 10px 4px;
   display:flex;
   flex-direction:column;
   z-index:20;
 }
-
-/* стили ближе к системной клавиатуре */
 
 .keyboard-plate {
   width:100%;
@@ -921,6 +921,64 @@ body.in-game .app {
   box-shadow:
     0 -2px 14px rgba(0,0,0,0.85),
     0 0 10px rgba(0,0,0,0.5);
+}
+
+/* матричный островок под клавиатурой */
+
+.matrix-island {
+  margin-top:6px;
+  align-self:center;
+  width:60%;
+  max-width:220px;
+  border-radius:999px;
+  padding:3px 0;
+  background:radial-gradient(circle at 0% 0%,rgba(0,255,128,0.2),rgba(3,10,6,0.96));
+  border:1px solid rgba(120,255,170,0.6);
+  box-shadow:
+    0 0 14px rgba(0,255,128,0.55),
+    0 0 30px rgba(0,160,90,0.5);
+  overflow:hidden;
+}
+
+.matrix-stream {
+  position:relative;
+  display:flex;
+  justify-content:space-between;
+  gap:4px;
+  font-family:"SF Mono",ui-monospace,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  font-size:10px;
+  color:#4bff8a;
+}
+
+.matrix-column {
+  display:inline-block;
+  white-space:nowrap;
+  transform:translateY(-100%);
+  opacity:.85;
+  text-shadow:0 0 6px rgba(0,255,128,0.9);
+  animation:matrix-fall 2.4s linear infinite;
+}
+
+.matrix-column:nth-child(2) {
+  animation-duration:3s;
+  animation-delay:-0.6s;
+}
+.matrix-column:nth-child(3) {
+  animation-duration:2.2s;
+  animation-delay:-1.1s;
+}
+.matrix-column:nth-child(4) {
+  animation-duration:2.8s;
+  animation-delay:-0.9s;
+}
+.matrix-column:nth-child(5) {
+  animation-duration:3.1s;
+  animation-delay:-1.4s;
+}
+
+@keyframes matrix-fall {
+  0% { transform:translateY(-100%); }
+  100% { transform:translateY(100%); }
 }
 
 .key-row {
@@ -1073,7 +1131,8 @@ body.in-game .app {
   .mode-grid-two {grid-template-columns:repeat(2,minmax(0,1fr));}
   .game-keyboard {
     transform:translateX(-50%) scale(0.9);
-    padding:4px 8px 6px;
+    bottom:16px;
+    padding:4px 8px 4px;
   }
   .key-btn {font-size:18px;}
 }
